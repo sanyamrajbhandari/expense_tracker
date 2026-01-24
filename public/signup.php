@@ -10,6 +10,7 @@ error_reporting(E_ALL);
         $email = trim($_POST['email']??"");
         $password = trim($_POST['password']??"");
         $errorMessage = "";
+        $successMessage = "";
 
         //Checking for empty values
         if(empty($name)||empty($email)||empty($password)){
