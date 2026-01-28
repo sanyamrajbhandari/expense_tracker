@@ -9,11 +9,12 @@ error_reporting(E_ALL);
         $name = trim($_POST['name']?? "");
         $email = trim($_POST['email']??"");
         $password = trim($_POST['password']??"");
+        $confirmPassword = trim($_POST['confirmPassword']??"");
         $errorMessage = "";
         $successMessage = "";
 
         //Checking for empty values
-        if(empty($name)||empty($email)||empty($password)){
+        if(empty($name)||empty($email)||empty($password)||empty($confirmPassword)){
             $errorMessage = "Please fill all of the fields for registration";
         }
 
@@ -38,6 +39,11 @@ error_reporting(E_ALL);
             - One special character";
         }
 
+        // Confirm password 
+        if($confirmPassword!=$password){
+            $errorMessage = "The passwords don't match";
+        }
+
         //to check if email has already been used for registration
          try{
             $checkEmail = "SELECT email FROM users WHERE email = ?";
@@ -52,17 +58,45 @@ error_reporting(E_ALL);
             echo "An error occured: ". $e->getMessage();
          }
 
-        if($errorMessage ==""){
-            try{
-                $sql = "INSERT INTO users (name, email, password_hash) values (?,?,?)";
+        if ($errorMessage == "") {
+            try {
+                // in order to perform multiple actions and execute them at once, we start transaction
+                $conn->beginTransaction();
+
+                // Inserting user into users table
+                $sql = "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)";
                 $stmt = $conn->prepare($sql);
-                $stmt->execute([$name,$email,password_hash($password,PASSWORD_DEFAULT)]);
+                $stmt->execute([
+                    $name,
+                    $email,
+                    password_hash($password, PASSWORD_DEFAULT)
+                ]);
+
+                // getting newly created user's id
+                $userId = $conn->lastInsertId();
+
+                // inserting default wallet(Cash) into wallets table by using user's ID
+                $walletSql = "INSERT INTO wallets (user_id, name, balance) VALUES (?, ?, ?)";
+                $walletStmt = $conn->prepare($walletSql);
+                $walletStmt->execute([
+                    $userId,
+                    'Cash',
+                    0
+                ]);
+
+                // Commit transaction
+                $conn->commit();
+
                 $successMessage = "Registration Successful!
                 <a href='login.php'> Login </a>";
-            }catch(Exception $e){
-                $errorMessage = "An error occured in registration: " . $e->getMessage();
+
+            } catch (Exception $e) {
+                // Rollback if anything fails
+                $conn->rollBack();
+                $errorMessage = "An error occurred in registration: " . $e->getMessage();
             }
-        }
+}
+
 
     }
 
@@ -96,6 +130,12 @@ error_reporting(E_ALL);
         <div>
             <label>Password</label><br>
             <input type="password" name="password" placeholder="Please enter your password" required>
+        </div>
+
+        <br>
+        <div>
+            <label>Confirm password</label><br>
+            <input type="password" name="confirmPassword" placeholder="Please re-enter your password" required>
         </div>
 
         <br>
