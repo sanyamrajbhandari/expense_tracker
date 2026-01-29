@@ -2,12 +2,18 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-include "../includes/header.php";
 require "../config/db.php";
+include "../includes/header.php";
 
+
+$username = $_SESSION['user_name'];
+$userId = $_SESSION['user_id'];
 // To set the timezone to Kathmandu from UTC and show current date and time
 date_default_timezone_set('Asia/Kathmandu');
+
+
+// To fetch the wallets
+
 
 ?>
 
@@ -15,7 +21,7 @@ date_default_timezone_set('Asia/Kathmandu');
   <main class="container">
     <div class="header-row">
       <div>
-        <h1>Welcome back, Alex!</h1>
+        <h1>Welcome back, <?= htmlspecialchars($username) ?></h1>
         <p class="subtitle">Here is your financial snapshot for today.</p>
       </div>
 

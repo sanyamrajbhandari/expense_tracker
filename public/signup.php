@@ -78,11 +78,7 @@ error_reporting(E_ALL);
                 // inserting default wallet(Cash) into wallets table by using user's ID
                 $walletSql = "INSERT INTO wallets (user_id, name, balance) VALUES (?, ?, ?)";
                 $walletStmt = $conn->prepare($walletSql);
-                $walletStmt->execute([
-                    $userId,
-                    'Cash',
-                    0
-                ]);
+                $walletStmt->execute([$userId,'Cash',0]);
 
                 // Commit transaction
                 $conn->commit();

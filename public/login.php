@@ -32,6 +32,8 @@ require "../config/db.php";
             
             if($result){
                 if(password_verify($password,$result['password_hash'])){
+                    $_SESSION['user_id'] = $result['id'];
+                    $_SESSION['user_name'] = $result['name'];
                     header("Location: dashboard.php");
                     exit;
                 }else{

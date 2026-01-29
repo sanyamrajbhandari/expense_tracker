@@ -1,3 +1,8 @@
+<?php
+
+$username = $_SESSION['user_name'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +22,7 @@
     </nav>
 
     <div class="profile">
-      <span class="name">Alex Rivers</span>
+      <span class="name"><?= htmlspecialchars($username) ?></span>
     </div>
   </header>
 
