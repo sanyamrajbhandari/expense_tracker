@@ -27,6 +27,11 @@ try{
   echo "An error occured while trying to fetch wallets " . $e-> getMessage();
 }
 
+// Calculate the networth
+$networth = null;
+foreach($wallets as $wallet){
+  $networth += $wallet['balance'];
+}
 if($_SERVER['REQUEST_METHOD']== "POST"){
     $type = $_POST['type'];
     $title = trim($_POST['title']??"");
@@ -75,6 +80,30 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
       }
     }
 
+    // To fetch Transactions
+
+    try{
+      $sql = "
+      SELECT 
+          t.id,
+          t.title,
+          t.amount,
+          t.transaction_datetime,
+          w.name
+      FROM transactions t
+      JOIN wallets w ON t.wallet_id = w.id
+      WHERE t.user_id = ?
+      ORDER BY t.created_at DESC
+      ";
+
+      $stmt = $conn->prepare($sql);
+      $stmt->execute([$userId]);
+
+      $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    }catch(Exception $e){
+      echo "An error occured while fetching transactions ". $e->getMessage();
+    }
 
 
 
@@ -101,24 +130,19 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
       <!-- Net Worth Card -->
       <div class="card net-worth">
         <p class="label">Total Net Worth</p>
-        <h2>$45,230.50</h2>
+        <h2><span>Rs. </span><?= $networth ?></h2>
       </div>
 
       <!-- Wallets -->
-      <div class="card wallet">
-        <p class="label">Cash</p>
-        <h3>$450.00</h3>
-      </div>
-
-      <div class="card wallet">
-        <p class="label">Bank Account</p>
-        <h3>$12,300.00</h3>
-      </div>
-
-      <div class="card wallet">
-        <p class="label">Savings</p>
-        <h3>$32,480.50</h3>
-      </div>
+      <?php for($i =0 ; $i<=3 ; $i++){
+        if(isset($wallets[$i])){
+        echo "<div class='card wallet'> ";
+        echo "<p class='label'>" . $wallets[$i]['name'] . "</p>";
+        echo "<h3><span>Rs. </span> " . $wallets[$i]['balance'] . "</h3>";
+        echo "</div>";
+        }
+      }
+      ?>
 
     </section>
 
