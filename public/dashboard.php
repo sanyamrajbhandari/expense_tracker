@@ -50,9 +50,29 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
     }
 
     if(empty($errorMessage)){
-      $transactionQuery = "INSERT INTO transactions (user_id, wallet_id, type, title, category, amount, transaction_datetime) VALUES (?,?,?,?,?,?,?) ";
-      $stmt = $conn->prepare($transactionQuery);
-      $stmt->execute([$userId,$account,$type,$title,$category,$amount,$date . ' ' . $time. ':00']);
+      try{
+        //Using beginTransaction for two changes
+        $conn->beginTransaction();
+
+        // Inserting into transactions table
+        $transactionQuery = "INSERT INTO transactions (user_id, wallet_id, type, title, category, amount, transaction_datetime) VALUES (?,?,?,?,?,?,?) ";
+        $insertStmt = $conn->prepare($transactionQuery);
+        $insertStmt->execute([$userId,$account,$type,$title,$category,$amount,$date . ' ' . $time. ':00']);
+
+        // Updating the corresponding wallet balance
+        if($type == 'expense'){
+        $updateSql = 'UPDATE wallets SET balance = balance - ? WHERE id= ? AND user_id = ?';
+        }else{
+        $updateSql = 'UPDATE wallets SET balance = balance + ? WHERE id= ? AND user_id = ?';
+        }
+        $updateStmt = $conn->prepare($updateSql);
+        $updateStmt->execute([$amount,$account,$userId]);
+
+        $conn->commit();
+      }catch(Exception $e){
+        $conn->rollBack();
+        echo "An error occured when adding transaction " . $e->getMessage();
+      }
     }
 
 
