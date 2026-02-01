@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 require "../config/db.php";
 include "../includes/header.php";
 
-if(!$_SESSION['user_name']){
+if(!isset($_SESSION['user_name'])){
   header("Location: login.php");
   exit;
 }
@@ -28,7 +28,7 @@ try{
 }
 
 // Calculate the networth
-$networth = null;
+$networth = 0;
 foreach($wallets as $wallet){
   $networth += $wallet['balance'];
 }
@@ -79,8 +79,9 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
         echo "An error occured when adding transaction " . $e->getMessage();
       }
     }
+}
 
-    // To fetch Transactions
+// To fetch Transactions
 
     try{
       $sql = "
@@ -89,6 +90,7 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
           t.title,
           t.amount,
           t.transaction_datetime,
+          t.type,
           w.name
       FROM transactions t
       JOIN wallets w ON t.wallet_id = w.id
@@ -105,9 +107,13 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
       echo "An error occured while fetching transactions ". $e->getMessage();
     }
 
-
-
-}
+    // Grouping the transactions by user entered date
+    $grouped = [];
+    
+    foreach ($transactions as $txn){
+      $dateKey = date('Y-m-d',strtotime($txn['transaction_datetime']));
+      $grouped[$dateKey][] = $txn;
+    }
 
 
 
@@ -252,30 +258,28 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
     <!-- Recent transactions -->
     <section class="transactions">
       <h2>Recent Transactions</h2>
+      
+      <?php 
+      global $grouped;
+      foreach($grouped as $date => $txns): ?>
+        <h3 class= 'date-title'>
+        <?= date('F j, l, Y', strtotime($date)) ?>
+        </h3>
+        <?php foreach ($txns as $txn): ?>
 
-      <div class="transaction">
-        <div>
-          <strong>Weekly Grocery Run</strong>
-          <p>Bank Account</p>
+        <div class="transaction">
+          <div>
+            <strong><?= $txn['title'] ?></strong>
+            <p><?= $txn['name'] ?></p>
+          </div>
+          <?php if($txn['type'] == "expense"): ?>
+            <span class="amount negative">- <?= $txn['amount'] ?></span>
+          <?php else: ?>
+            <span class="amount positive">+ <?= $txn['amount'] ?></span>
+          <?php endif ?>
         </div>
-        <span class="amount negative">- $120.50</span>
-      </div>
-
-      <div class="transaction">
-        <div>
-          <strong>Monthly Salary</strong>
-          <p>Bank Account</p>
-        </div>
-        <span class="amount positive">+ $3,500.00</span>
-      </div>
-
-      <div class="transaction">
-        <div>
-          <strong>Sushi Dinner Night</strong>
-          <p>Cash</p>
-        </div>
-        <span class="amount negative">- $45.00</span>
-      </div>
+        <?php endforeach ?>
+      <?php endforeach ?>
     </section>
 
   </main>
