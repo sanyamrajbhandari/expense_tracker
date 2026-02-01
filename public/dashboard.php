@@ -72,7 +72,7 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
         <p class="subtitle">Here is your financial snapshot for today.</p>
       </div>
 
-      <button class="btn-primary">+ Add Transaction</button>
+      <button class="btn-primary" id="addTransactionBtn">+ Add Transaction</button>
     </div>
 
    <!-- Wallets and networth -->
@@ -103,12 +103,12 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
     </section>
 
     <!-- Overlay for entry of transaction -->
-    <div class="overlay">
+    <div class = "overlay" id="overlay">
       <div class="formModal">
 
         <div class="modalTopSection">
           <p>Add a transaction</p>
-          <button class="closeModal">&times;</button>
+          <button id="closeModal">&times;</button>
         </div>
 
         <div class="modalMiddleSection">
@@ -116,15 +116,15 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
 
           <!-- Div for the radio buttons for income or expense selection -->
           <div class="transactionType">
-            <label>
-              <input type="radio" name="type" value="expense" checked>
-              Expense
-            </label>
+            <label class="expense">
+    <input type="radio" name="type" value="expense" checked>
+    <span>Expense</span>
+  </label>
 
-            <label>
-              <input type="radio" name="type" value="income">
-              Income
-            </label>
+  <label class="income">
+    <input type="radio" name="type" value="income">
+    <span>Income</span>
+  </label>
           </div>
 
           <!-- The title of the expense -->
