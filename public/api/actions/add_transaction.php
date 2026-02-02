@@ -1,6 +1,8 @@
 <?php
 session_start();
 require "../../../config/db.php";
+require_once "../../../includes/security.php";
+verify_csrf_api();
 
 header("Content-Type: application/json");
 

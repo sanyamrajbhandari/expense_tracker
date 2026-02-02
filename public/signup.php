@@ -13,8 +13,13 @@ error_reporting(E_ALL);
         $email = trim($_POST['email']??"");
         $password = trim($_POST['password']??"");
         $confirmPassword = trim($_POST['confirmPassword']??"");
+        // Checking CSRF
+        if (!validate_csrf_token($_POST['csrf_token'] ?? "")) {
+            $errorMessage = "CSRF token validation failed";
+        }
+
         //Checking for empty values
-        if(empty($name)||empty($email)||empty($password)||empty($confirmPassword)){
+        if($errorMessage == "" && (empty($name)||empty($email)||empty($password)||empty($confirmPassword))){
             $errorMessage = "Please fill all of the fields for registration";
         }
 
@@ -121,6 +126,7 @@ error_reporting(E_ALL);
             <?php endif; ?>
 
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" name="name" placeholder="John Doe" required>

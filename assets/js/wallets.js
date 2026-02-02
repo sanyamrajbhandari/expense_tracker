@@ -181,6 +181,7 @@ function setupModal() {
 
                 fetch("api/actions/add_wallet.php", {
                     method: "POST",
+                    headers: { "X-CSRF-TOKEN": formData.get("csrf_token") },
                     body: formData
                 })
                 .then(res => res.json())
@@ -215,6 +216,7 @@ function setupModal() {
             
             fetch("api/actions/update_wallet.php", {
                 method: "POST",
+                headers: { "X-CSRF-TOKEN": formData.get("csrf_token") },
                 body: formData
             })
             .then(res => res.json())
@@ -236,6 +238,9 @@ window.deleteWallet = function(id) {
 
     fetch("api/actions/delete_wallet.php", {
         method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('input[name="csrf_token"]').value
+        },
         body: JSON.stringify({id: id})
     })
     .then(res => res.json())

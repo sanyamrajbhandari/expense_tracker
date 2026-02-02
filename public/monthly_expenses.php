@@ -48,6 +48,7 @@ if (!isset($_SESSION['user_name'])) {
       <button id="closeEditModal"><i class="fas fa-times"></i></button>
     </div>
     <form id="editTransactionForm">
+      <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
       <input type="hidden" name="id" id="editId">
       <div class="modalMiddleSection">
         <div class="formGroup">

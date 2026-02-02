@@ -40,6 +40,7 @@ if (!isset($_SESSION['user_id'])) {
         <button id="closeWalletModal"><i class="fas fa-times"></i></button>
       </div>
       <form id="addWalletForm">
+        <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
         <div class="modalMiddleSection">
             <div class="formGroup">
                 <label>Wallet Name</label>
@@ -69,6 +70,7 @@ if (!isset($_SESSION['user_id'])) {
         <button id="closeEditWalletModal"><i class="fas fa-times"></i></button>
       </div>
       <form id="editWalletForm">
+        <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
         <input type="hidden" name="id" id="editWalletId">
         <div class="modalMiddleSection">
             <div class="formGroup">

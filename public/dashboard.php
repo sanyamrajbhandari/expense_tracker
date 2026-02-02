@@ -50,6 +50,7 @@ date_default_timezone_set('Asia/Kathmandu');
 
         <div class="modalMiddleSection">
           <form id="transactionForm" method = "POST">
+            <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
 
           <!-- Div for the radio buttons for income or expense selection -->
           <div class="transactionType">
@@ -148,6 +149,7 @@ date_default_timezone_set('Asia/Kathmandu');
       <button id="closeEditModal"><i class="fas fa-times"></i></button>
     </div>
     <form id="editTransactionForm">
+      <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
       <input type="hidden" name="id" id="editId">
       <div class="modalMiddleSection">
         <div class="formGroup">

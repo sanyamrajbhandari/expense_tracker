@@ -1,6 +1,8 @@
 <?php
 session_start();
 require "../../../config/db.php";
+require_once "../../../includes/security.php";
+verify_csrf_api();
 
 header('Content-Type: application/json');
 
@@ -12,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 // Support both JSON and FormData
 $input = $_POST;
 if (empty($input)) {
-    $input = json_decode(file_get_contents("php://input"), true);
+    $input = get_json_input();
 }
 
 $id = $input['id'] ?? null;

@@ -1,6 +1,8 @@
 <?php
 session_start();
 require "../../../config/db.php";
+require_once "../../../includes/security.php";
+verify_csrf_api();
 
 header('Content-Type: application/json');
 
@@ -9,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
+$data = get_json_input();
 $walletId = $data['id'] ?? null;
 
 if (!$walletId) {

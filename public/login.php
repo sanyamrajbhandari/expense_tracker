@@ -8,8 +8,13 @@ require_once "../includes/security.php";
         $password = trim($_POST['password']??"");
         $errorMessage = "";
 
+        // Checking CSRF
+        if (!validate_csrf_token($_POST['csrf_token'] ?? "")) {
+            $errorMessage = "CSRF token validation failed";
+        }
+
         //Checking for empty values
-        if(empty($email)||empty($password)){
+        if($errorMessage == "" && (empty($email)||empty($password))){
             $errorMessage = "Please fill all of the fields for registration";
         }
 
@@ -71,6 +76,7 @@ require_once "../includes/security.php";
             <?php endif; ?>
 
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                 <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" name="email" placeholder="name@example.com" required>

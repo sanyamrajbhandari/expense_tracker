@@ -226,6 +226,9 @@ if (transactionForm) {
 
     fetch("api/actions/add_transaction.php", {
       method: "POST",
+      headers: {
+          "X-CSRF-TOKEN": formData.get("csrf_token")
+      },
       body: formData,
     })
       .then((res) => res.json())
@@ -310,6 +313,9 @@ window.deleteTransaction = function(id) {
 
     fetch("api/actions/delete_transaction.php", {
         method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('input[name="csrf_token"]').value
+        },
         body: JSON.stringify({id: id})
     })
     .then(res => res.json())
@@ -331,6 +337,9 @@ if(editForm) {
 
         fetch("api/actions/update_transaction.php", {
             method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": data.csrf_token
+            },
             body: JSON.stringify(data)
         })
         .then(res => res.json())
