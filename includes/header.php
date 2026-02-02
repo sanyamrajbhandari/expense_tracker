@@ -26,7 +26,7 @@ $username = $_SESSION['user_name'];
      Transactions
   </a>
 
-  <a href="#"
+  <a href="../public/wallets.php"
      class="<?= ($currentPage === 'wallets') ? 'active' : '' ?>">
      Wallets
   </a>

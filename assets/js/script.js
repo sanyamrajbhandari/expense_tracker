@@ -15,44 +15,53 @@ const categories = [
 // Selecting the category select element to add categories
 const categorySelect = document.getElementById("categoryDropdown");
 
-categories.forEach((category) => {
-  const option = document.createElement("option");
+if (categorySelect) {
+  categories.forEach((category) => {
+    const option = document.createElement("option");
 
-  option.value = category;
-  option.textContent = category;
+    option.value = category;
+    option.textContent = category;
 
-  categorySelect.appendChild(option);
-});
+    categorySelect.appendChild(option);
+  });
+}
 
 const modal = document.getElementById("overlay");
 const openBtn = document.getElementById("addTransactionBtn");
 const closeBtn = document.getElementById("closeModal");
 
-openBtn.addEventListener("click", () => {
-  modal.classList.add("show");
-});
+if (openBtn) {
+  openBtn.addEventListener("click", () => {
+    modal.classList.add("show");
+  });
+}
 
-closeBtn.addEventListener("click", () => {
-  modal.classList.remove("show");
-});
+if (closeBtn) {
+  closeBtn.addEventListener("click", () => {
+    modal.classList.remove("show");
+  });
+}
 
 //to close the model when the user clicks outside the form box
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    modal.classList.remove("show");
-  }
-});
+if (modal) {
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.remove("show");
+    }
+  });
 
-// To close the model on ESC key
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    modal.classList.remove("show");
-  }
-});
+  // To close the model on ESC key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      modal.classList.remove("show");
+    }
+  });
+}
 
 // AJAX part
 function renderWalletOptions(wallets) {
   const select = document.getElementById("walletSelect");
+  if (!select) return; // Add check
   select.innerHTML = '<option value="">Select wallet</option>';
 
   wallets.forEach((wallet) => {
@@ -64,7 +73,10 @@ function renderWalletOptions(wallets) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadDashboard();
+  // Only load dashboard if we are on the dashboard page (check for a specific element)
+  if (document.getElementById("netWorth")) {
+      loadDashboard();
+  }
 });
 
 function loadDashboard() {
@@ -90,7 +102,10 @@ function renderWallets(wallets) {
   const container = document.getElementById("walletCards");
   container.innerHTML = "";
 
-  wallets.forEach((wallet) => {
+  // Limit to 5 wallets
+  const walletsToShow = wallets.slice(0, 5);
+
+  walletsToShow.forEach((wallet) => {
     container.innerHTML += `
       <div class="card wallet">
         <p class="label">${wallet.name}</p>
@@ -98,6 +113,18 @@ function renderWallets(wallets) {
       </div>
     `;
   });
+
+  // If there are more than 5, show "View All" card
+  if (wallets.length > 5) {
+      container.innerHTML += `
+        <div class="card wallet view-all-card" onclick="window.location.href='../public/wallets.php'" style="cursor: pointer; display: flex; align-items: center; justify-content: center; background: #eef2ff; color: #4f46e5;">
+            <div style="text-align: center;">
+                <i class="fas fa-arrow-right" style="font-size: 24px; margin-bottom: 8px;"></i>
+                <p style="font-weight: 600;">View All</p>
+            </div>
+        </div>
+      `;
+  }
 }
 
 function renderTransactions(grouped) {
