@@ -27,13 +27,31 @@ $time     = $_POST['time'] ?? '';
 $walletId = $_POST['wallet'] ?? '';
 
 // 3. Basic validation
-if ($title === '' || $amount <= 0 || !$walletId) {
+if ($title === '') {
     echo json_encode([
         "success" => false,
-        "message" => e("Invalid input data")
+        "message" => e("Please fill the title")
     ]);
     exit;
 }
+
+if ($amount <= 0) {
+    echo json_encode([
+        "success" => false,
+        "message" => e("Amount should be greater than 0")
+    ]);
+    exit;
+}
+
+
+if (!$walletId) {
+    echo json_encode([
+        "success" => false,
+        "message" => e("Please select a wallet")
+    ]);
+    exit;
+}
+
 
 // Combine date + time → DATETIME
 $transactionDateTime = $date . ' ' . $time . ':00';

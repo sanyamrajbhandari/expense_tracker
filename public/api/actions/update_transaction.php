@@ -18,13 +18,13 @@ if (empty($input)) {
 }
 
 $id = $input['id'] ?? null;
-$title = $input['title'] ?? null;
+$title = trim($input['title'] ?? '');
 $amount = $input['amount'] ?? null;
 $category = $input['category'] ?? null;
 $wallet_id = $input['wallet_id'] ?? null;
 
-if (!$id || !$title || !$amount || !$category || !$wallet_id) {
-    echo json_encode(['success' => false, 'error' => e('Missing required fields')]);
+if (!$id || $title === '' || $amount <= 0 || !$category || !$wallet_id) {
+    echo json_encode(['success' => false, 'error' => e('Invalid input data')]);
     exit;
 }
 
