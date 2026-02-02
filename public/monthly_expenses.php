@@ -31,7 +31,7 @@ if (!isset($_SESSION['user_name'])) {
      <div class="header-right">
        <div class="search-box">
          <i class="fas fa-search"></i>
-         <input type="text" id="searchInput" placeholder="Filter list...">
+         <input type="text" id="searchInput" placeholder="Search for transactions">
        </div>
      </div>
    </div>

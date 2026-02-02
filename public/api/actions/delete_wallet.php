@@ -7,7 +7,7 @@ verify_csrf_api();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => e('Unauthorized')]);
     exit;
 }
 
@@ -15,7 +15,7 @@ $data = get_json_input();
 $walletId = $data['id'] ?? null;
 
 if (!$walletId) {
-    echo json_encode(['success' => false, 'error' => 'Valid ID required']);
+    echo json_encode(['success' => false, 'error' => e('Valid ID required')]);
     exit;
 }
 
@@ -36,10 +36,10 @@ try {
         echo json_encode(['success' => true]);
     } else {
         $conn->rollBack();
-        echo json_encode(['success' => false, 'error' => 'Wallet not found']);
+        echo json_encode(['success' => false, 'error' => e('Wallet not found')]);
     }
 
 } catch (Exception $e) {
     $conn->rollBack();
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => e($e->getMessage())]);
 }

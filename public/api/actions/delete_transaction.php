@@ -7,7 +7,7 @@ verify_csrf_api();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => e('Unauthorized')]);
     exit;
 }
 
@@ -15,7 +15,7 @@ $data = get_json_input();
 $transactionId = $data['id'] ?? null;
 
 if (!$transactionId) {
-    echo json_encode(['success' => false, 'error' => 'Valid ID required']);
+    echo json_encode(['success' => false, 'error' => e('Valid ID required')]);
     exit;
 }
 
@@ -30,7 +30,7 @@ try {
 
     if (!$txn) {
         $conn->rollBack();
-        echo json_encode(['success' => false, 'error' => 'Transaction not found']);
+        echo json_encode(['success' => false, 'error' => e('Transaction not found')]);
         exit;
     }
 
@@ -49,5 +49,5 @@ try {
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     $conn->rollBack();
-    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => e('Database error: ' . $e->getMessage())]);
 }

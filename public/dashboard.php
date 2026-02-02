@@ -68,7 +68,7 @@ date_default_timezone_set('Asia/Kathmandu');
           <!-- The title of the expense -->
           <div class="formGroup">
             <label for="title">Title</label>
-            <p style="color:red"><?= $errorMessage['title']?? "" ?></p>
+            <p style="color:red"><?= e($errorMessage['title'] ?? "") ?></p>
             <input
               id="title"
               type="text"
@@ -81,7 +81,7 @@ date_default_timezone_set('Asia/Kathmandu');
           <!-- Expense amount -->
           <div class="formGroup">
             <label for="amount">Amount</label>
-            <p style="color:red"><?= $errorMessage['amount']??"" ?> </p>
+            <p style="color:red"><?= e($errorMessage['amount'] ?? "") ?> </p>
             <div class="inputWithPrefix">
               <span>Rs.</span>
               <input id="amount"

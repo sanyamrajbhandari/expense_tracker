@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../../config/db.php";
+require_once "../../../includes/security.php";
 
 header('Content-Type: application/json');
 
@@ -19,6 +20,11 @@ $walletStmt = $conn->prepare(
 );
 $walletStmt->execute([$userId]);
 $wallets = $walletStmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($wallets as &$w) {
+    $w['name'] = e($w['name']); //using e() to use htmlspecialchars for xss prevention
+}
+unset($w);
 
 /* Fetch transactions */
 $txnStmt = $conn->prepare(
@@ -39,6 +45,14 @@ LIMIT 15
 );
 $txnStmt->execute([$userId]);
 $transactions = $txnStmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($transactions as &$txn) {
+    $txn['title'] = e($txn['title']);
+    $txn['wallet_name'] = e($txn['wallet_name']);
+    $txn['category'] = e($txn['category']);
+    $txn['type'] = e($txn['type']);
+}
+unset($txn);
 
 /* Group transactions by date */
 $grouped = [];

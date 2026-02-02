@@ -12,15 +12,7 @@ const categories = [
   "Travel",
 ];
 
-function escapeHTML(str) {
-    if (!str) return "";
-    return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+// Data is now pre-escaped on the server using e() (htmlspecialchars)
 
 // Selecting the category select element to add categories
 const categorySelect = document.getElementById("categoryDropdown");
@@ -147,14 +139,9 @@ function getIcon(cat) {
     if (c === "entertainment") return ["fa-film", "icon-red"];
     if (c.includes("bill") || c === "fees") return ["fa-file-invoice-dollar", "icon-gray"]; // Bills & Fees
     if (c === "gifts") return ["fa-gift", "icon-purple"];
-    if (c === "beauty") return ["fa-spa", "icon-red"]; // Pink/Red
+    if (c === "beauty") return ["fa-spa", "icon-red"];
     if (c === "work") return ["fa-briefcase", "icon-blue"];
     if (c === "travel") return ["fa-plane", "icon-blue"];
-    
-    // Fallbacks
-    if(c.includes("food")) return ["fa-utensils", "icon-orange"];
-    if(c.includes("tech")) return ["fa-laptop", "icon-purple"];
-    if(c.includes("home") || c.includes("rent")) return ["fa-home", "icon-green"];
     return ["fa-tag", "icon-gray"];
 }
 
@@ -182,11 +169,11 @@ function renderTransactions(grouped) {
                         <i class="fas ${icon}"></i>
                     </div>
                     <div class="txn-details">
-                        <strong>${escapeHTML(txn.title)}</strong>
+                        <strong>${txn.title}</strong>
                         <div class="txn-meta">
                             <span>${formatTime(txn.transaction_datetime)}</span>
                             <span>•</span>
-                            <span>${escapeHTML(txn.wallet_name)}</span>
+                            <span>${txn.wallet_name}</span>
                         </div>
                     </div>
                 </div>
@@ -291,11 +278,21 @@ window.editTransaction = function(id) {
             const editTitle = document.getElementById("editTitle");
             const editAmount = document.getElementById("editAmount");
             const editCategory = document.getElementById("editCategory");
-
+            const txt = document.createElement("textarea");
+            
             if(editId) editId.value = t.id;
-            if(editTitle) editTitle.value = t.title;
+            
+            if(editTitle) {
+                txt.innerHTML = t.title;
+                editTitle.value = txt.value;
+            }
+            
             if(editAmount) editAmount.value = t.amount;
-            if(editCategory) editCategory.value = t.category || "Dining"; 
+            
+            if(editCategory) {
+                txt.innerHTML = t.category || "Dining";
+                editCategory.value = txt.value;
+            }
             
             if(editModal) editModal.classList.add("show");
         } else {

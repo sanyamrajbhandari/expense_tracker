@@ -39,14 +39,6 @@ function renderMonths(months, activeMonth) {
 let allTransactions = [];
 
 function renderTransactions(grouped, month) {
-  // Store flattened transactions for search if this is the first render or update
-  // But wait, 'grouped' is passed in. We might need to flatten it or just filter it.
-  // Actually, let's store the original full grouped object or flat list if possible.
-  // For simplicity, let's keep 'grouped' as the source of truth for display BUT we need 'allTransactions' for filtering.
-  // Since 'grouped' is by date, it's hard to filter flatly.
-  // Let's assume we receive 'data.transactions' from fetch which IS grouped.
-  // We need to support filtering.
-  
   // Update the title
   const title = document.getElementById("monthTitle");
   title.textContent = formatMonth(month || Object.keys(grouped)[0]);
@@ -87,14 +79,6 @@ function renderGrouped(grouped) {
         if (c === "beauty") return ["fa-spa", "icon-red"]; 
         if (c === "work") return ["fa-briefcase", "icon-blue"];
         if (c === "travel") return ["fa-plane", "icon-blue"];
-
-        if(c.includes("food") || c.includes("dining")) return ["fa-utensils", "icon-orange"];
-        if(c.includes("grocer")) return ["fa-shopping-basket", "icon-green"];
-        if(c.includes("transit") || c.includes("uber") || c.includes("travel")) return ["fa-car", "icon-blue"];
-        if(c.includes("shopping")) return ["fa-shopping-bag", "icon-purple"];
-        if(c.includes("rent") || c.includes("bill")) return ["fa-home", "icon-green"];
-        if(c.includes("coffee")) return ["fa-mug-hot", "icon-orange"];
-        if(c.includes("tech") || c.includes("apple")) return ["fa-laptop", "icon-purple"];
         return ["fa-tag", "icon-gray"];
     };
 
@@ -104,7 +88,6 @@ function renderGrouped(grouped) {
     };
 
     for (const date in grouped) {
-        // Sort dates desc? keys might be unsorted. Usually backend sorts.
         
         list.innerHTML += `<h3>${new Date(date).toDateString()}</h3>`;
 
@@ -251,10 +234,18 @@ window.editTransaction = function(id) {
             });
 
             // Set form values
+            const txt = document.createElement("textarea");
+            
             document.getElementById("editId").value = t.id;
-            document.getElementById("editTitle").value = t.title;
+            
+            txt.innerHTML = t.title;
+            document.getElementById("editTitle").value = txt.value;
+            
             document.getElementById("editAmount").value = t.amount;
-            document.getElementById("editCategory").value = t.category || "Dining";
+            
+            txt.innerHTML = t.category || "Dining";
+            document.getElementById("editCategory").value = txt.value;
+            
             walletSelect.value = t.wallet_id;
 
             editModal.classList.add("show");

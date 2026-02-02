@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../../config/db.php";
+require_once "../../../includes/security.php";
 
 header('Content-Type: application/json');
 
@@ -20,7 +21,10 @@ $stmt->execute([$id, $_SESSION['user_id']]);
 $txn = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($txn) {
+    $txn['title'] = e($txn['title']);
+    $txn['category'] = e($txn['category']);
+    $txn['type'] = e($txn['type']);
     echo json_encode(['success' => true, 'transaction' => $txn]);
 } else {
-    echo json_encode(['success' => false, 'error' => 'Not found']);
+    echo json_encode(['success' => false, 'error' => e('Not found')]);
 }

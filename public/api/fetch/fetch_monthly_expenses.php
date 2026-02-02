@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../../config/db.php";
+require_once "../../../includes/security.php";
 
 header("Content-Type: application/json");
 
@@ -42,6 +43,14 @@ $txnStmt = $conn->prepare("
 ");
 $txnStmt->execute([$userId, $month]);
 $transactions = $txnStmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($transactions as &$txn) {
+    $txn['title'] = e($txn['title']);
+    $txn['wallet_name'] = e($txn['wallet_name']);
+    $txn['category'] = e($txn['category']);
+    $txn['type'] = e($txn['type']);
+}
+unset($txn);
 
 // 3️⃣ Group by DATE (like your dashboard)
 $grouped = [];

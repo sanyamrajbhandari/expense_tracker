@@ -1,12 +1,4 @@
-function escapeHTML(str) {
-    if (!str) return "";
-    return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+// Data is now pre-escaped on the server using e() (htmlspecialchars)
 
 document.addEventListener("DOMContentLoaded", () => {
     loadWallets();
@@ -90,6 +82,7 @@ function renderWalletDetails(wallet, transactions) {
 
     let iconClass = "fa-wallet";
     const lowerName = wallet.name.toLowerCase();
+    // assigining icon according to wallet name
     if (lowerName.includes("cash")) iconClass = "fa-money-bill-wave";
     else if (lowerName.includes("bank") || lowerName.includes("account")) iconClass = "fa-university";
     else if (lowerName.includes("card")) iconClass = "fa-credit-card";
@@ -128,7 +121,7 @@ function renderWalletDetails(wallet, transactions) {
       <div class="detail-header">
           <h2>Wallet Details</h2>
           <div class="wallet-actions">
-            <button class="edit-btn" onclick="editWallet(${wallet.id}, '${wallet.name}', ${wallet.balance})"><i class="fas fa-pen"></i> Edit</button>
+            <button class="edit-btn" onclick="editWallet(${wallet.id}, '${wallet.name.replace(/'/g, "\\'")}', ${wallet.balance})"><i class="fas fa-pen"></i> Edit</button>
             <button class="delete-btn" onclick="deleteWallet(${wallet.id})"><i class="fas fa-trash"></i> Delete</button>
           </div>
       </div>
@@ -258,7 +251,12 @@ window.editWallet = function(id, name, balance) {
     const modal = document.getElementById("editWalletModal");
     if(modal) {
         document.getElementById("editWalletId").value = id;
-        document.getElementById("editWalletName").value = name;
+        
+        // Unescape for the input field so user sees raw data
+        const txt = document.createElement("textarea");
+        txt.innerHTML = name;
+        document.getElementById("editWalletName").value = txt.value;
+        
         document.getElementById("editWalletBalance").value = balance;
         modal.classList.add("show");
     }

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../../config/db.php";
+require_once "../../../includes/security.php";
 
 header("Content-Type: application/json");
 
@@ -17,6 +18,12 @@ try {
     $walletsStmt = $conn->prepare("SELECT id, name, balance, created_at FROM wallets WHERE user_id = ?");
     $walletsStmt->execute([$userId]);
     $wallets = $walletsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Pre-escape wallet names
+    foreach ($wallets as &$w) {
+        $w['name'] = e($w['name']); //using e() from security.php for htmlspecialchars
+    }
+    unset($w);
 
     // 2. Determine selected wallet (passed ID or first one)
     $selectedWallet = null;
@@ -50,6 +57,13 @@ try {
         ");
         $txnStmt->execute([$userId, $selectedWallet['id']]);
         $transactions = $txnStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Pre-escape transaction titles
+        foreach ($transactions as &$txn) {
+            $txn['title'] = e($txn['title']);
+            $txn['type'] = e($txn['type']); // Though enum-like, good practice
+        }
+        unset($txn);
     }
 
     echo json_encode([
@@ -60,5 +74,5 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => e($e->getMessage())]);
 }

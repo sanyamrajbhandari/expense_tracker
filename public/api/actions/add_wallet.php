@@ -7,12 +7,12 @@ verify_csrf_api();
 header("Content-Type: application/json");
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => e('Unauthorized')]);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'error' => 'Invalid method']);
+    echo json_encode(['success' => false, 'error' => e('Invalid method')]);
     exit;
 }
 
@@ -21,7 +21,7 @@ $name = trim($_POST['name'] ?? '');
 $balance = floatval($_POST['balance'] ?? 0);
 
 if (empty($name)) {
-    echo json_encode(['success' => false, 'error' => 'Wallet name is required']);
+    echo json_encode(['success' => false, 'error' => e('Wallet name is required')]);
     exit;
 }
 
@@ -31,5 +31,5 @@ try {
     
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => e($e->getMessage())]);
 }

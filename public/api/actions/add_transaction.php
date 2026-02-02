@@ -10,7 +10,7 @@ header("Content-Type: application/json");
 if (!isset($_SESSION['user_id'])) {
     echo json_encode([
         "success" => false,
-        "message" => "User not logged in"
+        "message" => e("User not logged in")
     ]);
     exit;
 }
@@ -30,7 +30,7 @@ $walletId = $_POST['wallet'] ?? '';
 if ($title === '' || $amount <= 0 || !$walletId) {
     echo json_encode([
         "success" => false,
-        "message" => "Invalid input data"
+        "message" => e("Invalid input data")
     ]);
     exit;
 }
@@ -84,7 +84,7 @@ try {
     // 8. Success response
     echo json_encode([
         "success" => true,
-        "message" => "Transaction added successfully"
+        "message" => e("Transaction added successfully")
     ]);
 
 } catch (Exception $e) {
@@ -93,6 +93,6 @@ try {
 
     echo json_encode([
         "success" => false,
-        "message" => "Failed to add transaction"
+        "message" => e("Failed to add transaction")
     ]);
 }

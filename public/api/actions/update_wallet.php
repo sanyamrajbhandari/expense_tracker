@@ -7,7 +7,7 @@ verify_csrf_api();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => e('Unauthorized')]);
     exit;
 }
 
@@ -23,7 +23,7 @@ $name = $input['name'] ?? null;
 $balance = $input['balance'] ?? null; 
 
 if (!$id || !$name) {
-    echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+    echo json_encode(['success' => false, 'error' => e('Missing required fields')]);
     exit;
 }
 
@@ -39,7 +39,10 @@ $sql .= " WHERE id = ? AND user_id = ?";
 $params[] = $id;
 $params[] = $_SESSION['user_id'];
 
-$stmt = $conn->prepare($sql);
-$stmt->execute($params);
-
-echo json_encode(['success' => true]);
+try {
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+    echo json_encode(['success' => true]);
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'error' => e($e->getMessage())]);
+}

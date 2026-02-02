@@ -60,7 +60,7 @@ error_reporting(E_ALL);
                 $errorMessage = "Email has already been registered";
             }
          }catch(Exception $e){
-            echo "An error occured: ". $e->getMessage();
+            echo "An error occured: " . e($e->getMessage());
          }
 
         if ($errorMessage == "") {
@@ -88,8 +88,7 @@ error_reporting(E_ALL);
                 // Commit transaction
                 $conn->commit();
 
-                $successMessage = "Registration Successful!
-                <a href='login.php'> Login </a>";
+                $successMessage = "Registration Successful!";
 
             } catch (Exception $e) {
                 // Rollback if anything fails
@@ -122,7 +121,10 @@ error_reporting(E_ALL);
             <?php endif; ?>
 
             <?php if ($successMessage !== ""): ?>
-                <div class="success-msg"><?= $successMessage ?></div>
+                <div class="success-msg">
+                    <?= e($successMessage) ?> 
+                    <a href='login.php'>Login here</a>
+                </div>
             <?php endif; ?>
 
             <form method="POST">

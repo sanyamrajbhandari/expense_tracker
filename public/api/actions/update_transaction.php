@@ -7,7 +7,7 @@ verify_csrf_api();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => e('Unauthorized')]);
     exit;
 }
 
@@ -24,7 +24,7 @@ $category = $input['category'] ?? null;
 $wallet_id = $input['wallet_id'] ?? null;
 
 if (!$id || !$title || !$amount || !$category || !$wallet_id) {
-    echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+    echo json_encode(['success' => false, 'error' => e('Missing required fields')]);
     exit;
 }
 
@@ -39,7 +39,7 @@ try {
 
     if (!$oldTxn) {
         $conn->rollBack();
-        echo json_encode(['success' => false, 'error' => 'Transaction not found']);
+        echo json_encode(['success' => false, 'error' => e('Transaction not found')]);
         exit;
     }
 
@@ -65,5 +65,5 @@ try {
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     $conn->rollBack();
-    echo json_encode(['success' => false, 'error' => 'Update failed: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => e('Update failed: ' . $e->getMessage())]);
 }

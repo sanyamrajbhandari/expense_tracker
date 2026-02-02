@@ -49,7 +49,7 @@ require_once "../includes/security.php";
                 $errorMessage = "Email hasn't been registered";
             }
             }catch(Exception $e){
-                echo "An error occured: " . $e->getMessage();
+                echo "An error occured: " . e($e->getMessage());
             }
 
         }
