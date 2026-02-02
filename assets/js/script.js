@@ -252,12 +252,28 @@ if(editModal && closeEditBtn) {
 
 // Global function to be called from inline onclick
 window.editTransaction = function(id) {
-    // 1. Fetch details
-    fetch(`../public/get_transaction.php?id=${id}`)
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-            const t = data.transaction;
+    // 1. Fetch transaction details AND all wallets
+    Promise.all([
+        fetch(`../public/get_transaction.php?id=${id}`).then(res => res.json()),
+        fetch(`../public/fetch_wallets.php`).then(res => res.json())
+    ])
+    .then(([txnData, walletData]) => {
+        if(txnData.success && walletData.success) {
+            const t = txnData.transaction;
+            
+            // Populate wallets dropdown
+            const walletSelect = document.getElementById("editWallet");
+            if(walletSelect) {
+                walletSelect.innerHTML = "";
+                walletData.wallets.forEach(w => {
+                    const opt = document.createElement("option");
+                    opt.value = w.id;
+                    opt.textContent = w.name;
+                    walletSelect.appendChild(opt);
+                });
+                walletSelect.value = t.wallet_id;
+            }
+
             const editId = document.getElementById("editId");
             const editTitle = document.getElementById("editTitle");
             const editAmount = document.getElementById("editAmount");
@@ -270,13 +286,12 @@ window.editTransaction = function(id) {
             
             if(editModal) editModal.classList.add("show");
         } else {
-            console.error("Fetch error:", data.error);
-            alert("Error fetching transaction: " + (data.error || "Unknown error"));
+            alert("Error fetching data");
         }
     })
     .catch(err => {
         console.error(err);
-        alert("Network error fetching transaction");
+        alert("Network error");
     });
 };
 

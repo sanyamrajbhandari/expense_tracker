@@ -17,15 +17,35 @@ if (!$transactionId) {
     exit;
 }
 
-// Security: Ensure transaction belongs to user
-$stmt = $conn->prepare("DELETE FROM transactions WHERE id = ? AND user_id = ?");
-$stmt->execute([$transactionId, $_SESSION['user_id']]);
+// Start transaction
+$conn->beginTransaction();
 
-if ($stmt->rowCount() > 0) {
-    // Optionally we should update wallet balance, but for now let's minimal implementation. 
-    // Ideally trigger logic to reverse the transaction effect on wallet.
-    // For now assuming simple delete.
+try {
+    // 1. Fetch transaction details before deletion
+    $fetchStmt = $conn->prepare("SELECT amount, type, wallet_id FROM transactions WHERE id = ? AND user_id = ? FOR UPDATE");
+    $fetchStmt->execute([$transactionId, $_SESSION['user_id']]);
+    $txn = $fetchStmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$txn) {
+        $conn->rollBack();
+        echo json_encode(['success' => false, 'error' => 'Transaction not found']);
+        exit;
+    }
+
+    // 2. Delete transaction
+    $delStmt = $conn->prepare("DELETE FROM transactions WHERE id = ? AND user_id = ?");
+    $delStmt->execute([$transactionId, $_SESSION['user_id']]);
+
+    // 3. Adjust Wallet Balance
+    // If it was an expense, add back to balance. If income, subtract.
+    $adjustment = ($txn['type'] === 'expense') ? $txn['amount'] : -$txn['amount'];
+    
+    $updateWStmt = $conn->prepare("UPDATE wallets SET balance = balance + ? WHERE id = ? AND user_id = ?");
+    $updateWStmt->execute([$adjustment, $txn['wallet_id'], $_SESSION['user_id']]);
+
+    $conn->commit();
     echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'error' => 'Transaction not found or could not be deleted']);
+} catch (Exception $e) {
+    $conn->rollBack();
+    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
 }

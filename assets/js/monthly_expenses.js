@@ -229,26 +229,41 @@ window.editTransaction = function(id) {
         return;
     }
 
-    // 1. Fetch details
-    fetch(`../public/get_transaction.php?id=${id}`)
-    .then(res => res.json())
-    .then(data => {
-        console.log("Fetch result:", data); // DEBUG
-        if (data.success) {
-            const t = data.transaction;
+    // 1. Fetch transaction details AND all wallets
+    Promise.all([
+        fetch(`../public/get_transaction.php?id=${id}`).then(res => res.json()),
+        fetch(`../public/fetch_wallets.php`).then(res => res.json())
+    ])
+    .then(([txnData, walletData]) => {
+        console.log("Data fetched:", { txnData, walletData }); // DEBUG
+        if (txnData.success && walletData.success) {
+            const t = txnData.transaction;
+            
+            // Populate wallets dropdown
+            const walletSelect = document.getElementById("editWallet");
+            walletSelect.innerHTML = "";
+            walletData.wallets.forEach(w => {
+                const opt = document.createElement("option");
+                opt.value = w.id;
+                opt.textContent = w.name;
+                walletSelect.appendChild(opt);
+            });
+
+            // Set form values
             document.getElementById("editId").value = t.id;
             document.getElementById("editTitle").value = t.title;
             document.getElementById("editAmount").value = t.amount;
             document.getElementById("editCategory").value = t.category || "Dining";
+            walletSelect.value = t.wallet_id;
 
             editModal.classList.add("show");
         } else {
-            alert("Error fetching transaction: " + (data.error || "Unknown error"));
+            alert("Error fetching data: " + (txnData.error || walletData.error || "Unknown error"));
         }
     })
     .catch(err => {
         console.error("Fetch failed:", err);
-        alert("Failed to fetch transaction details");
+        alert("Failed to fetch details");
     });
 };
 

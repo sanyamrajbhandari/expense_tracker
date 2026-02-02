@@ -176,6 +176,12 @@ date_default_timezone_set('Asia/Kathmandu');
                  <option value="Travel">Travel</option>
             </select>
         </div>
+        <div class="formGroup">
+            <label>Wallet</label>
+            <select name="wallet_id" id="editWallet" required>
+                <!-- Wallets populated via JS -->
+            </select>
+        </div>
       </div>
       <div class="modalBottomSection">
         <button type="submit" class="bottomButtons">Update Transaction</button>
