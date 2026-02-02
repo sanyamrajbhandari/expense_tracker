@@ -3,8 +3,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 require "../config/db.php";
+$currentPage = 'overview';
 include "../includes/header.php";
-
 if(!isset($_SESSION['user_name'])){
   header("Location: login.php");
   exit;

@@ -16,10 +16,22 @@ $username = $_SESSION['user_name'];
     <div class="logo">PaisaKhai</div>
 
     <nav class="nav-links">
-      <a class="active" href="#">Overview</a>
-      <a href="#">Transactions</a>
-      <a href="#">Wallets</a>
-    </nav>
+  <a href="../public/dashboard.php"
+     class="<?= ($currentPage === 'overview') ? 'active' : '' ?>">
+     Overview
+  </a>
+
+  <a href="../public/monthly_expenses.php"
+     class="<?= ($currentPage === 'transactions') ? 'active' : '' ?>">
+     Transactions
+  </a>
+
+  <a href="#"
+     class="<?= ($currentPage === 'wallets') ? 'active' : '' ?>">
+     Wallets
+  </a>
+</nav>
+
 
     <div class="profile">
       <span class="name"><?= htmlspecialchars($username) ?></span>
