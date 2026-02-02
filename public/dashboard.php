@@ -24,14 +24,14 @@ date_default_timezone_set('Asia/Kathmandu');
         <p class="subtitle">Here is your financial snapshot for today.</p>
       </div>
 
-      <button class="btn-primary" id="addTransactionBtn">+ Add Transaction</button>
+      <button class="btn-primary" id="addTransactionBtn"><i class="fas fa-plus"></i> Add Transaction</button>
     </div>
 
    <!-- Wallets and networth -->
    <section class="cards-row">
   <!-- Net Worth Card -->
   <div class="card net-worth">
-    <p class="label">Total Net Worth</p>
+    <p class="label"><i class="fas fa-sack-dollar"></i> Total Net Worth</p>
     <h2><span>Rs. </span><span id="netWorth">0</span></h2>
   </div>
 
@@ -45,7 +45,7 @@ date_default_timezone_set('Asia/Kathmandu');
 
         <div class="modalTopSection">
           <p>Add a transaction</p>
-          <button id="closeModal">&times;</button>
+          <button id="closeModal"><i class="fas fa-times"></i></button>
         </div>
 
         <div class="modalMiddleSection">
