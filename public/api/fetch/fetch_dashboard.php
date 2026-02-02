@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../config/db.php";
+require "../../../config/db.php";
 
 header('Content-Type: application/json');
 
@@ -25,8 +25,6 @@ $txnStmt = $conn->prepare(
     "SELECT 
     t.id,
     t.title,
-    t.amount,
-    t.type,
     t.amount,
     t.type,
     t.category,

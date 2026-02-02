@@ -1,3 +1,13 @@
+function escapeHTML(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     loadWallets();
     setupModal();
@@ -5,8 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function loadWallets(walletId = null) {
     const url = walletId 
-        ? `../public/fetch_wallets.php?id=${walletId}` 
-        : `../public/fetch_wallets.php`;
+        ? `api/fetch/fetch_wallets.php?id=${walletId}` 
+        : `api/fetch/fetch_wallets.php`;
 
     fetch(url)
         .then((res) => res.json())
@@ -169,7 +179,7 @@ function setupModal() {
                 e.preventDefault();
                 const formData = new FormData(form);
 
-                fetch("../public/add_wallet.php", {
+                fetch("api/actions/add_wallet.php", {
                     method: "POST",
                     body: formData
                 })
@@ -203,7 +213,7 @@ function setupModal() {
             e.preventDefault();
             const formData = new FormData(editWForm);
             
-            fetch("../public/update_wallet.php", {
+            fetch("api/actions/update_wallet.php", {
                 method: "POST",
                 body: formData
             })
@@ -224,7 +234,7 @@ function setupModal() {
 window.deleteWallet = function(id) {
     if(!confirm("Are you sure you want to delete this wallet? All associated transactions will be deleted!")) return;
 
-    fetch("../public/delete_wallet.php", {
+    fetch("api/actions/delete_wallet.php", {
         method: "POST",
         body: JSON.stringify({id: id})
     })

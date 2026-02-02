@@ -20,7 +20,7 @@ date_default_timezone_set('Asia/Kathmandu');
   <main class="container">
     <div class="header-row">
       <div>
-        <h1>Welcome back, <?= htmlspecialchars($username) ?></h1>
+        <h1>Welcome back, <?= e($username) ?></h1>
         <p class="subtitle">Here is your financial snapshot for today.</p>
       </div>
 

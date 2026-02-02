@@ -12,6 +12,16 @@ const categories = [
   "Travel",
 ];
 
+function escapeHTML(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // Selecting the category select element to add categories
 const categorySelect = document.getElementById("categoryDropdown");
 
@@ -80,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadDashboard() {
-  fetch("../public/fetch_dashboard.php")
+  fetch("api/fetch/fetch_dashboard.php")
     .then((res) => res.json())
     .then((data) => {
       if (!data.success) return;
@@ -117,7 +127,7 @@ function renderWallets(wallets) {
   // If there are more than 5, show "View All" card
   if (wallets.length > 5) {
       container.innerHTML += `
-        <div class="card wallet view-all-card" onclick="window.location.href='../public/wallets.php'" style="cursor: pointer; display: flex; align-items: center; justify-content: center; background: #eef2ff; color: #4f46e5;">
+        <div class="card wallet view-all-card" onclick="window.location.href='api/wallets.php'" style="cursor: pointer; display: flex; align-items: center; justify-content: center; background: #eef2ff; color: #4f46e5;">
             <div style="text-align: center;">
                 <i class="fas fa-arrow-right" style="font-size: 24px; margin-bottom: 8px;"></i>
                 <p style="font-weight: 600;">View All</p>
@@ -172,11 +182,11 @@ function renderTransactions(grouped) {
                         <i class="fas ${icon}"></i>
                     </div>
                     <div class="txn-details">
-                        <strong>${txn.title}</strong>
+                        <strong>${escapeHTML(txn.title)}</strong>
                         <div class="txn-meta">
                             <span>${formatTime(txn.transaction_datetime)}</span>
                             <span>•</span>
-                            <span>${txn.wallet_name}</span>
+                            <span>${escapeHTML(txn.wallet_name)}</span>
                         </div>
                     </div>
                 </div>
@@ -198,7 +208,7 @@ function renderTransactions(grouped) {
   // Add "View All" button at the bottom
   section.innerHTML += `
     <div style="margin-top: 20px; text-align: center;">
-      <a href="../public/monthly_expenses.php" class="btn-primary" style="text-decoration: none; display: inline-block;">
+      <a href="api/monthly_expenses.php" class="btn-primary" style="text-decoration: none; display: inline-block;">
         <i class="fas fa-list-ul"></i> View All Transactions
       </a>
     </div>
@@ -214,7 +224,7 @@ if (transactionForm) {
 
     const formData = new FormData(transactionForm);
 
-    fetch("../public/add_transaction.php", {
+    fetch("api/actions/add_transaction.php", {
       method: "POST",
       body: formData,
     })
@@ -254,8 +264,8 @@ if(editModal && closeEditBtn) {
 window.editTransaction = function(id) {
     // 1. Fetch transaction details AND all wallets
     Promise.all([
-        fetch(`../public/get_transaction.php?id=${id}`).then(res => res.json()),
-        fetch(`../public/fetch_wallets.php`).then(res => res.json())
+        fetch(`api/fetch/get_transaction.php?id=${id}`).then(res => res.json()),
+        fetch(`api/fetch/fetch_wallets.php`).then(res => res.json())
     ])
     .then(([txnData, walletData]) => {
         if(txnData.success && walletData.success) {
@@ -298,7 +308,7 @@ window.editTransaction = function(id) {
 window.deleteTransaction = function(id) {
     if(!confirm("Are you sure you want to delete this transaction?")) return;
 
-    fetch("../public/delete_transaction.php", {
+    fetch("api/actions/delete_transaction.php", {
         method: "POST",
         body: JSON.stringify({id: id})
     })
@@ -319,7 +329,7 @@ if(editForm) {
         // Convert to JSON object
         const data = Object.fromEntries(formData.entries());
 
-        fetch("../public/update_transaction.php", {
+        fetch("api/actions/update_transaction.php", {
             method: "POST",
             body: JSON.stringify(data)
         })

@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function loadMonth(month = null) {
   const url = month
-    ? `../public/fetch_monthly_expenses.php?month=${month}`
-    : `../public/fetch_monthly_expenses.php`;
+    ? `api/fetch/fetch_monthly_expenses.php?month=${month}`
+    : `api/fetch/fetch_monthly_expenses.php`;
 
   fetch(url)
     .then((res) => res.json())
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const formData = new FormData(editForm);
             const data = Object.fromEntries(formData.entries());
 
-            fetch("../public/update_transaction.php", {
+            fetch("api/actions/update_transaction.php", {
                 method: "POST",
                 body: JSON.stringify(data)
             })
@@ -231,8 +231,8 @@ window.editTransaction = function(id) {
 
     // 1. Fetch transaction details AND all wallets
     Promise.all([
-        fetch(`../public/get_transaction.php?id=${id}`).then(res => res.json()),
-        fetch(`../public/fetch_wallets.php`).then(res => res.json())
+        fetch(`api/fetch/get_transaction.php?id=${id}`).then(res => res.json()),
+        fetch(`api/fetch/fetch_wallets.php`).then(res => res.json())
     ])
     .then(([txnData, walletData]) => {
         console.log("Data fetched:", { txnData, walletData }); // DEBUG
@@ -270,7 +270,7 @@ window.editTransaction = function(id) {
 window.deleteTransaction = function(id) {
     if (!confirm("Are you sure you want to delete this transaction?")) return;
 
-    fetch("../public/delete_transaction.php", {
+    fetch("api/actions/delete_transaction.php", {
         method: "POST",
         body: JSON.stringify({ id: id })
     })

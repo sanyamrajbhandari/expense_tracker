@@ -1,6 +1,7 @@
 <?php
+require_once __DIR__ . "/security.php";
 
-$username = $_SESSION['user_name'];
+$username = $_SESSION['user_name'] ?? 'Guest';
 ?>
 
 <!DOCTYPE html>
