@@ -30,6 +30,7 @@ $txnStmt = $conn->prepare("
         t.title,
         t.amount,
         t.type,
+        t.category,
         t.transaction_datetime,
         w.name AS wallet_name
     FROM transactions t

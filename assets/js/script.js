@@ -127,6 +127,32 @@ function renderWallets(wallets) {
   }
 }
 
+/* Helper for icons (Standardized) */
+function getIcon(cat) {
+    const c = cat ? cat.toLowerCase() : "";
+    if (c === "dining") return ["fa-utensils", "icon-orange"];
+    if (c === "groceries") return ["fa-shopping-basket", "icon-green"]; // Changed to green for groceries
+    if (c === "shopping") return ["fa-shopping-bag", "icon-purple"];
+    if (c === "transit") return ["fa-bus", "icon-blue"];
+    if (c === "entertainment") return ["fa-film", "icon-red"];
+    if (c.includes("bill") || c === "fees") return ["fa-file-invoice-dollar", "icon-gray"]; // Bills & Fees
+    if (c === "gifts") return ["fa-gift", "icon-purple"];
+    if (c === "beauty") return ["fa-spa", "icon-red"]; // Pink/Red
+    if (c === "work") return ["fa-briefcase", "icon-blue"];
+    if (c === "travel") return ["fa-plane", "icon-blue"];
+    
+    // Fallbacks
+    if(c.includes("food")) return ["fa-utensils", "icon-orange"];
+    if(c.includes("tech")) return ["fa-laptop", "icon-purple"];
+    if(c.includes("home") || c.includes("rent")) return ["fa-home", "icon-green"];
+    return ["fa-tag", "icon-gray"];
+}
+
+function formatTime(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 function renderTransactions(grouped) {
   const section = document.querySelector(".transactions");
   section.innerHTML = "<h2>Recent Transactions</h2>";
@@ -137,19 +163,42 @@ function renderTransactions(grouped) {
         `;
 
     grouped[date].forEach((txn) => {
+      const [icon, colorClass] = getIcon(txn.category);
+      
       section.innerHTML += `
-                <div class="transaction">
-                    <div>
-                        <strong>${txn.title}</strong>
-                        <p>${txn.wallet_name}</p>
+            <div class="transaction">
+                <div class="txn-left-content">
+                    <div class="txn-icon-circle ${colorClass}">
+                        <i class="fas ${icon}"></i>
                     </div>
-                    <span class="amount ${txn.type === "expense" ? "negative" : "positive"}">
-                        ${txn.type === "expense" ? "-" : "+"} ${txn.amount}
-                    </span>
+                    <div class="txn-details">
+                        <strong>${txn.title}</strong>
+                        <div class="txn-meta">
+                            <span>${formatTime(txn.transaction_datetime)}</span>
+                            <span>•</span>
+                            <span>${txn.wallet_name}</span>
+                        </div>
+                    </div>
                 </div>
+                <div class="txn-right-content">
+                    <span class="txn-amount ${txn.type === "expense" ? "negative" : "positive"}">
+                        ${txn.type === "expense" ? "-" : "+"} Rs. ${parseFloat(txn.amount).toFixed(2)}
+                    </span>
+                    <span class="txn-tag">${txn.type}</span>
+                </div>
+            </div>
             `;
     });
   }
+  
+  // Add "View All" button at the bottom
+  section.innerHTML += `
+    <div style="margin-top: 20px; text-align: center;">
+      <a href="../public/monthly_expenses.php" class="btn-primary" style="text-decoration: none; display: inline-block;">
+        <i class="fas fa-list-ul"></i> View All Transactions
+      </a>
+    </div>
+  `;
 }
 
 //To add transaction

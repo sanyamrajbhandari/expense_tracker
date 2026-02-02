@@ -714,3 +714,147 @@ body {
 }
 
 /* Wallet card specific icon adjustments are already in .wallet-icon */
+
+/* ===== Redesigned Transactions Page ===== */
+
+.transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.month-heading {
+    margin-bottom: 0; /* Override previous margin */
+    font-size: 18px;
+    color: #1f2937;
+}
+
+.transaction-count {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    gap: 8px;
+    width: 250px;
+    transition: box-shadow 0.2s;
+}
+
+.search-box:focus-within {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    border-color: #4f46e5;
+}
+
+.search-box i {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    width: 100%;
+    color: #334155;
+    background: transparent;
+}
+
+/* Updated Transaction List Styling */
+#transactionList h3 {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin: 24px 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.transaction {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s;
+    justify-content: space-between; /* Ensure spacing */
+}
+
+/* Left side of transaction (Icon + Text) */
+.txn-left-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.txn-icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* Category-based colors for icons */
+.icon-orange { background: #fff7ed; color: #ea580c; }
+.icon-blue { background: #eff6ff; color: #2563eb; }
+.icon-green { background: #f0fdf4; color: #16a34a; }
+.icon-purple { background: #f5f3ff; color: #7c3aed; }
+.icon-red { background: #fef2f2; color: #dc2626; }
+.icon-gray { background: #f3f4f6; color: #4b5563; }
+
+.txn-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.txn-details strong {
+    font-size: 15px;
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.txn-meta {
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Right side (Amount + Tag) */
+.txn-right-content {
+    text-align: right;
+}
+
+.txn-amount {
+    font-size: 15px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.txn-tag {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.negative { color: #1f2937; } /* Make expenses dark like reference, or utilize red if preferred. Reference has dark/black for expense amount */
+.positive { color: #16a34a; }

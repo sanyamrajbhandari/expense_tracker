@@ -23,7 +23,18 @@ if (!isset($_SESSION['user_name'])) {
     Track your personal spending and transaction trends over time.
   </p>
 
-  <h2 id="monthTitle" class="month-heading">Loading...</h2>
+   <div class="transactions-header">
+     <div class="header-left">
+       <h2 id="monthTitle" class="month-heading">Loading...</h2>
+       <span class="transaction-count" id="totalItems">0 total items</span>
+     </div>
+     <div class="header-right">
+       <div class="search-box">
+         <i class="fas fa-search"></i>
+         <input type="text" id="searchInput" placeholder="Filter list...">
+       </div>
+     </div>
+   </div>
   <div id="transactionList"></div>
   </section>
 
