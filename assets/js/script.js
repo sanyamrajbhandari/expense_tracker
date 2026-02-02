@@ -119,7 +119,7 @@ function renderWallets(wallets) {
   // If there are more than 5, show "View All" card
   if (wallets.length > 5) {
       container.innerHTML += `
-        <div class="card wallet view-all-card" onclick="window.location.href='api/wallets.php'" style="cursor: pointer; display: flex; align-items: center; justify-content: center; background: #eef2ff; color: #4f46e5;">
+        <div class="card wallet view-all-card" onclick="window.location.href='wallets.php'" style="cursor: pointer; display: flex; align-items: center; justify-content: center; background: #eef2ff; color: #4f46e5;">
             <div style="text-align: center;">
                 <i class="fas fa-arrow-right" style="font-size: 24px; margin-bottom: 8px;"></i>
                 <p style="font-weight: 600;">View All</p>
@@ -195,7 +195,7 @@ function renderTransactions(grouped) {
   // Add "View All" button at the bottom
   section.innerHTML += `
     <div style="margin-top: 20px; text-align: center;">
-      <a href="api/monthly_expenses.php" class="btn-primary" style="text-decoration: none; display: inline-block;">
+      <a href="monthly_expenses.php" class="btn-primary" style="text-decoration: none; display: inline-block;">
         <i class="fas fa-list-ul"></i> View All Transactions
       </a>
     </div>
