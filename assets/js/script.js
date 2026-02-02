@@ -25,16 +25,10 @@ categories.forEach((category) => {
 });
 
 const modal = document.getElementById("overlay");
-if (modal !== null) {
-  console.log("Element exists and is selected");
-} else {
-  console.log("Element NOT found");
-}
 const openBtn = document.getElementById("addTransactionBtn");
 const closeBtn = document.getElementById("closeModal");
 
 openBtn.addEventListener("click", () => {
-  console.log("I am being triggered!");
   modal.classList.add("show");
 });
 
@@ -57,6 +51,17 @@ document.addEventListener("keydown", (e) => {
 });
 
 // AJAX part
+function renderWalletOptions(wallets) {
+  const select = document.getElementById("walletSelect");
+  select.innerHTML = '<option value="">Select wallet</option>';
+
+  wallets.forEach((wallet) => {
+    const option = document.createElement("option");
+    option.value = wallet.id;
+    option.textContent = wallet.name;
+    select.appendChild(option);
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   loadDashboard();
@@ -69,6 +74,7 @@ function loadDashboard() {
       if (!data.success) return;
 
       renderWallets(data.wallets);
+      renderWalletOptions(data.wallets);
       renderTransactions(data.transactions);
       updateNetWorth(data.wallets);
     });
@@ -86,16 +92,16 @@ function renderWallets(wallets) {
 
   wallets.forEach((wallet) => {
     container.innerHTML += `
-            <div class="card wallet">
-                <p class="label">${wallet.name}</p>
-                <h3><span>Rs. </span>${wallet.balance}</h3>
-            </div>
-        `;
+      <div class="card wallet">
+        <p class="label">${wallet.name}</p>
+        <h3><span>Rs. </span>${wallet.balance}</h3>
+      </div>
+    `;
   });
 }
 
 function renderTransactions(grouped) {
-  const section = document.getElementById("transactionsSection");
+  const section = document.querySelector(".transactions");
   section.innerHTML = "<h2>Recent Transactions</h2>";
 
   for (const date in grouped) {
@@ -122,26 +128,28 @@ function renderTransactions(grouped) {
 //To add transaction
 const transactionForm = document.getElementById("transactionForm");
 
-transactionForm.addEventListener("submit", function (e) {
-  e.preventDefault(); // stop page reload
+if (transactionForm) {
+  transactionForm.addEventListener("submit", function (e) {
+    e.preventDefault(); // stop page reload
 
-  const formData = new FormData(transactionForm);
+    const formData = new FormData(transactionForm);
 
-  fetch("../public/add_transaction.php", {
-    method: "POST",
-    body: formData,
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        // THIS is the interaction point
-        modal.classList.remove("show");
-        loadDashboard(); // refresh wallets + transactions
-      } else {
-        alert(data.message);
-      }
+    fetch("../public/add_transaction.php", {
+      method: "POST",
+      body: formData,
     })
-    .catch(() => {
-      alert("Something went wrong");
-    });
-});
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          // THIS is the interaction point
+          modal.classList.remove("show");
+          loadDashboard(); // refresh wallets + transactions
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(() => {
+        alert("Something went wrong");
+      });
+  });
+}

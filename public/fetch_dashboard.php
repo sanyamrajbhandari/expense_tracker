@@ -23,16 +23,17 @@ $wallets = $walletStmt->fetchAll(PDO::FETCH_ASSOC);
 /* Fetch transactions */
 $txnStmt = $conn->prepare(
     "SELECT 
-        t.id,
-        t.title,
-        t.amount,
-        t.type,
-        t.transaction_datetime,
-        w.name AS wallet_name
-     FROM transactions t
-     JOIN wallets w ON t.wallet_id = w.id
-     WHERE t.user_id = ?
-     ORDER BY t.transaction_datetime DESC"
+    t.id,
+    t.title,
+    t.amount,
+    t.type,
+    t.transaction_datetime,
+    w.name AS wallet_name
+FROM transactions t
+JOIN wallets w ON t.wallet_id = w.id
+WHERE t.user_id = ?
+ORDER BY t.transaction_datetime DESC
+"
 );
 $txnStmt->execute([$userId]);
 $transactions = $txnStmt->fetchAll(PDO::FETCH_ASSOC);

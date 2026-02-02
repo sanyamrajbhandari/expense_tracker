@@ -14,109 +14,6 @@ $username = $_SESSION['user_name'];
 $userId = $_SESSION['user_id'];
 // To set the timezone to Kathmandu from UTC and show current date and time
 date_default_timezone_set('Asia/Kathmandu');
-
-
-// To fetch the wallets
-try{
-  $getWallets = "SELECT * FROM wallets WHERE user_id = ?";
-  $stmt = $conn->prepare($getWallets);
-  $stmt->execute([$userId]);
-  $wallets= $stmt->fetchAll();
-
-}catch(Exception $e){
-  echo "An error occured while trying to fetch wallets " . $e-> getMessage();
-}
-
-// Calculate the networth
-$networth = 0;
-foreach($wallets as $wallet){
-  $networth += $wallet['balance'];
-}
-if($_SERVER['REQUEST_METHOD']== "POST"){
-    $type = $_POST['type'];
-    $title = trim($_POST['title']??"");
-    $amount = trim($_POST['amount']??"");
-    $category = $_POST['category'];
-    $date = $_POST['date'];
-    $time = $_POST['time'];
-    $account = $_POST['wallet'];
-    $errorMessage = [];
-
-    if(empty($title)){
-      $errorMessage['title'] = "Please state the tile of the expense";
-    }
-
-    if(empty($amount)){
-      $errorMessage['amount'] = "Please enter the amount of the expense";
-    }
-
-    if($amount<0){
-      $errorMessage['amount'] = "Please enter positive amount.";
-    }
-
-    if(empty($errorMessage)){
-      try{
-        //Using beginTransaction for two changes
-        $conn->beginTransaction();
-
-        // Inserting into transactions table
-        $transactionQuery = "INSERT INTO transactions (user_id, wallet_id, type, title, category, amount, transaction_datetime) VALUES (?,?,?,?,?,?,?) ";
-        $insertStmt = $conn->prepare($transactionQuery);
-        $insertStmt->execute([$userId,$account,$type,$title,$category,$amount,$date . ' ' . $time. ':00']);
-
-        // Updating the corresponding wallet balance
-        if($type == 'expense'){
-        $updateSql = 'UPDATE wallets SET balance = balance - ? WHERE id= ? AND user_id = ?';
-        }else{
-        $updateSql = 'UPDATE wallets SET balance = balance + ? WHERE id= ? AND user_id = ?';
-        }
-        $updateStmt = $conn->prepare($updateSql);
-        $updateStmt->execute([$amount,$account,$userId]);
-
-        $conn->commit();
-      }catch(Exception $e){
-        $conn->rollBack();
-        echo "An error occured when adding transaction " . $e->getMessage();
-      }
-    }
-}
-
-// To fetch Transactions
-
-    try{
-      $sql = "
-      SELECT 
-          t.id,
-          t.title,
-          t.amount,
-          t.transaction_datetime,
-          t.type,
-          w.name
-      FROM transactions t
-      JOIN wallets w ON t.wallet_id = w.id
-      WHERE t.user_id = ?
-      ORDER BY t.created_at DESC
-      ";
-
-      $stmt = $conn->prepare($sql);
-      $stmt->execute([$userId]);
-
-      $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    }catch(Exception $e){
-      echo "An error occured while fetching transactions ". $e->getMessage();
-    }
-
-    // Grouping the transactions by user entered date
-    $grouped = [];
-    
-    foreach ($transactions as $txn){
-      $dateKey = date('Y-m-d',strtotime($txn['transaction_datetime']));
-      $grouped[$dateKey][] = $txn;
-    }
-
-
-
 ?>
 
 <!-- Main content -->
@@ -131,26 +28,16 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
     </div>
 
    <!-- Wallets and networth -->
-    <section class="cards-row">
+   <section class="cards-row">
+  <!-- Net Worth Card -->
+  <div class="card net-worth">
+    <p class="label">Total Net Worth</p>
+    <h2><span>Rs. </span><span id="netWorth">0</span></h2>
+  </div>
 
-      <!-- Net Worth Card -->
-      <div class="card net-worth">
-        <p class="label">Total Net Worth</p>
-        <h2><span>Rs. </span><?= $networth ?></h2>
-      </div>
-
-      <!-- Wallets -->
-      <?php for($i =0 ; $i<=3 ; $i++){
-        if(isset($wallets[$i])){
-        echo "<div class='card wallet'> ";
-        echo "<p class='label'>" . $wallets[$i]['name'] . "</p>";
-        echo "<h3><span>Rs. </span> " . $wallets[$i]['balance'] . "</h3>";
-        echo "</div>";
-        }
-      }
-      ?>
-
-    </section>
+  <!-- Wallets will be injected here -->
+  <div id="walletCards"></div>
+</section>
 
     <!-- Overlay for entry of transaction -->
     <div class = "overlay" id="overlay">
@@ -162,7 +49,7 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
         </div>
 
         <div class="modalMiddleSection">
-          <form method = "POST">
+          <form id="transactionForm" method = "POST">
 
           <!-- Div for the radio buttons for income or expense selection -->
           <div class="transactionType">
@@ -236,50 +123,25 @@ if($_SERVER['REQUEST_METHOD']== "POST"){
 
           <!-- Select for the wallet/account -->
           <div class="formGroup">
-            <label for="wallet">Wallet/Amount</label>
-            <select name="wallet" required>
-              <?php foreach($wallets as $wallet): ?>
-                <option value = <?= $wallet['id'] ?>> <?= $wallet['name'] ?> </option>
-              <?php endforeach ?>
+            <label for="wallet">Wallet/Account</label>
+            <select name="wallet" id="walletSelect" required>
+              <option value="">Select wallet</option>
             </select>
           </div>
-        </div>
 
         <div class="modalBottomSection">
           <button type = "submit" class="bottomButtons">Save transaction</button>
           <button class="bottomButtons">Cancel</button>
         </div>
-              </form>
+        </form>
       
       </div>
     </div>
 
+</div>
 
-    <!-- Recent transactions -->
     <section class="transactions">
-      <h2>Recent Transactions</h2>
-      
-      <?php 
-      global $grouped;
-      foreach($grouped as $date => $txns): ?>
-        <h3 class= 'date-title'>
-        <?= date('F j, l, Y', strtotime($date)) ?>
-        </h3>
-        <?php foreach ($txns as $txn): ?>
 
-        <div class="transaction">
-          <div>
-            <strong><?= $txn['title'] ?></strong>
-            <p><?= $txn['name'] ?></p>
-          </div>
-          <?php if($txn['type'] == "expense"): ?>
-            <span class="amount negative">- <?= $txn['amount'] ?></span>
-          <?php else: ?>
-            <span class="amount positive">+ <?= $txn['amount'] ?></span>
-          <?php endif ?>
-        </div>
-        <?php endforeach ?>
-      <?php endforeach ?>
     </section>
 
   </main>

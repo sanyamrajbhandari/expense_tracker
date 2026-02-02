@@ -81,8 +81,8 @@ body {
 /* Cards section styles */
 .cards-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: 2fr 3fr;
+  gap: 10px;
   margin-bottom: 32px;
 }
 
@@ -332,4 +332,11 @@ body {
 .bottomButtons:not([type="submit"]) {
   background: #f1f5f9;
   color: #334155;
+}
+
+/* wallet cards */
+#walletCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
