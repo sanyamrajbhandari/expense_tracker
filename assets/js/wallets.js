@@ -117,7 +117,10 @@ function renderWalletDetails(wallet, transactions) {
     detailsContainer.innerHTML = `
       <div class="detail-header">
           <h2>Wallet Details</h2>
-          <button class="export-btn"><i class="fas fa-download"></i> Export</button>
+          <div class="wallet-actions">
+            <button class="edit-btn" onclick="editWallet(${wallet.id}, '${wallet.name}', ${wallet.balance})"><i class="fas fa-pen"></i> Edit</button>
+            <button class="delete-btn" onclick="deleteWallet(${wallet.id})"><i class="fas fa-trash"></i> Delete</button>
+          </div>
       </div>
       
       <div class="selected-wallet-card">
@@ -142,46 +145,106 @@ function renderWalletDetails(wallet, transactions) {
 }
 
 function setupModal() {
+    // Add Wallet Modal
     const minModal = document.getElementById("addWalletModal");
     const openBtn = document.getElementById("addWalletBtn");
     const closeBtn = document.getElementById("closeWalletModal");
     const cancelBtn = document.getElementById("cancelWalletBtn");
     const form = document.getElementById("addWalletForm");
 
-    if (!minModal || !openBtn) return;
+    if (minModal && openBtn) {
+        const openModal = () => minModal.classList.add("show");
+        const closeModal = () => minModal.classList.remove("show");
 
-    const openModal = () => minModal.classList.add("show");
-    const closeModal = () => minModal.classList.remove("show");
+        openBtn.onclick = openModal;
+        if(closeBtn) closeBtn.onclick = closeModal;
+        if(cancelBtn) cancelBtn.onclick = closeModal;
 
-    openBtn.onclick = openModal;
-    if(closeBtn) closeBtn.onclick = closeModal;
-    if(cancelBtn) cancelBtn.onclick = closeModal;
+        minModal.onclick = (e) => {
+            if (e.target === minModal) closeModal();
+        };
 
-    // Close on outside click
-    minModal.onclick = (e) => {
-        if (e.target === minModal) closeModal();
-    };
+        if(form) {
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
 
-    if(form) {
-        form.onsubmit = (e) => {
+                fetch("../public/add_wallet.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        closeModal();
+                        form.reset();
+                        loadWallets(); 
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                })
+                .catch(console.error);
+            };
+        }
+    }
+
+    // Edit Wallet Modal (New)
+    const editWModal = document.getElementById("editWalletModal");
+    const closeEditWBtn = document.getElementById("closeEditWalletModal");
+    const editWForm = document.getElementById("editWalletForm");
+
+    if(editWModal && closeEditWBtn) {
+        closeEditWBtn.onclick = () => editWModal.classList.remove("show");
+        editWModal.onclick = (e) => { if (e.target === editWModal) editWModal.classList.remove("show"); };
+    }
+
+    if(editWForm) {
+        editWForm.onsubmit = (e) => {
             e.preventDefault();
-            const formData = new FormData(form);
-
-            fetch("../public/add_wallet.php", {
+            const formData = new FormData(editWForm);
+            
+            fetch("../public/update_wallet.php", {
                 method: "POST",
                 body: formData
             })
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    closeModal();
-                    form.reset();
-                    loadWallets(); // Reload list to show new wallet
+                    editWModal.classList.remove("show");
+                    loadWallets(); // Refresh all
                 } else {
-                    alert("Error: " + data.error);
+                    alert(data.error || "Update failed");
                 }
-            })
-            .catch(console.error);
+            });
         };
     }
 }
+
+// Global functions for inline onclicks
+window.deleteWallet = function(id) {
+    if(!confirm("Are you sure you want to delete this wallet? All associated transactions will be deleted!")) return;
+
+    fetch("../public/delete_wallet.php", {
+        method: "POST",
+        body: JSON.stringify({id: id})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            // Reload page or wallets
+            loadWallets(); 
+        } else {
+            alert(data.error || "Delete failed");
+        }
+    });
+};
+
+window.editWallet = function(id, name, balance) {
+    const modal = document.getElementById("editWalletModal");
+    if(modal) {
+        document.getElementById("editWalletId").value = id;
+        document.getElementById("editWalletName").value = name;
+        document.getElementById("editWalletBalance").value = balance;
+        modal.classList.add("show");
+    }
+};

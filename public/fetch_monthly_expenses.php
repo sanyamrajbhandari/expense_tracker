@@ -27,6 +27,7 @@ $months = $monthsStmt->fetchAll(PDO::FETCH_COLUMN);
 // 2️⃣ Fetch transactions for selected month
 $txnStmt = $conn->prepare("
     SELECT 
+        t.id,
         t.title,
         t.amount,
         t.type,

@@ -185,6 +185,10 @@ function renderTransactions(grouped) {
                         ${txn.type === "expense" ? "-" : "+"} Rs. ${parseFloat(txn.amount).toFixed(2)}
                     </span>
                     <span class="txn-tag">${txn.type}</span>
+                    <div class="txn-actions" style="margin-top:4px;">
+                        <i class="fas fa-pen" style="cursor:pointer; color:#64748b; margin-right:8px; font-size:12px;" onclick="editTransaction(${txn.id})"></i>
+                        <i class="fas fa-trash" style="cursor:pointer; color:#ef4444; font-size:12px;" onclick="deleteTransaction(${txn.id})"></i>
+                    </div>
                 </div>
             </div>
             `;
@@ -228,4 +232,90 @@ if (transactionForm) {
         alert("Something went wrong");
       });
   });
+}
+
+/* ============================
+   Edit / Delete Functionality (Dashboard)
+   ============================ */
+
+const editModal = document.getElementById("editTransactionModal");
+const closeEditBtn = document.getElementById("closeEditModal");
+const editForm = document.getElementById("editTransactionForm");
+
+if(editModal && closeEditBtn) {
+    closeEditBtn.addEventListener("click", () => editModal.classList.remove("show"));
+    
+    window.addEventListener("click", (e) => {
+        if (e.target === editModal) editModal.classList.remove("show");
+    });
+}
+
+// Global function to be called from inline onclick
+window.editTransaction = function(id) {
+    // 1. Fetch details
+    fetch(`../public/get_transaction.php?id=${id}`)
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            const t = data.transaction;
+            const editId = document.getElementById("editId");
+            const editTitle = document.getElementById("editTitle");
+            const editAmount = document.getElementById("editAmount");
+            const editCategory = document.getElementById("editCategory");
+
+            if(editId) editId.value = t.id;
+            if(editTitle) editTitle.value = t.title;
+            if(editAmount) editAmount.value = t.amount;
+            if(editCategory) editCategory.value = t.category || "Dining"; 
+            
+            if(editModal) editModal.classList.add("show");
+        } else {
+            console.error("Fetch error:", data.error);
+            alert("Error fetching transaction: " + (data.error || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Network error fetching transaction");
+    });
+};
+
+window.deleteTransaction = function(id) {
+    if(!confirm("Are you sure you want to delete this transaction?")) return;
+
+    fetch("../public/delete_transaction.php", {
+        method: "POST",
+        body: JSON.stringify({id: id})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+             location.reload(); 
+        } else {
+            alert(data.error || "Failed to delete");
+        }
+    });
+};
+
+if(editForm) {
+    editForm.onsubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(editForm);
+        // Convert to JSON object
+        const data = Object.fromEntries(formData.entries());
+
+        fetch("../public/update_transaction.php", {
+            method: "POST",
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(resData => {
+            if(resData.success) {
+                editModal.classList.remove("show");
+                location.reload();
+            } else {
+                alert(resData.error || "Update failed");
+            }
+        });
+    };
 }

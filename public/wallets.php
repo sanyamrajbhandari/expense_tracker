@@ -61,6 +61,37 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
+  <!-- Edit Wallet Modal -->
+  <div class="overlay" id="editWalletModal">
+    <div class="formModal">
+      <div class="modalTopSection">
+        <p>Edit Wallet</p>
+        <button id="closeEditWalletModal"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="editWalletForm">
+        <input type="hidden" name="id" id="editWalletId">
+        <div class="modalMiddleSection">
+            <div class="formGroup">
+                <label>Wallet Name</label>
+                <input type="text" name="name" id="editWalletName" required>
+            </div>
+            <!-- Balance editing is restricted or we can allow it with warning -->
+            <!-- Let's allow simple name edit first as per common practice, but plan mentioned update_wallet supports balance -->
+            <div class="formGroup">
+                <label>Balance (Manual Adjustment)</label>
+                <div class="inputWithPrefix">
+                    <span>Rs.</span>
+                    <input type="number" name="balance" id="editWalletBalance" step="0.01" required>
+                </div>
+            </div>
+        </div>
+        <div class="modalBottomSection">
+            <button type="submit" class="bottomButtons">Update Wallet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </main>
 <script src="../assets/js/wallets.js"></script>
 <?php include "../includes/footer.php"; ?>

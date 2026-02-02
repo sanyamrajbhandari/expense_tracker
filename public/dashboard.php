@@ -140,6 +140,50 @@ date_default_timezone_set('Asia/Kathmandu');
 
 </div>
 
+<!-- Edit Transaction Modal (Dashboard) -->
+<div class="overlay" id="editTransactionModal">
+  <div class="formModal">
+    <div class="modalTopSection">
+      <p>Edit Transaction</p>
+      <button id="closeEditModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="editTransactionForm">
+      <input type="hidden" name="id" id="editId">
+      <div class="modalMiddleSection">
+        <div class="formGroup">
+            <label>Title</label>
+            <input type="text" name="title" id="editTitle" required>
+        </div>
+        <div class="formGroup">
+            <label>Amount</label>
+            <div class="inputWithPrefix">
+                <span>Rs.</span>
+                <input type="number" name="amount" id="editAmount" required>
+            </div>
+        </div>
+        <div class="formGroup">
+            <label>Category</label>
+            <select name="category" id="editCategory" required>
+                 <option value="Dining">Dining</option>
+                 <option value="Groceries">Groceries</option>
+                 <option value="Shopping">Shopping</option>
+                 <option value="Transit">Transit</option>
+                 <option value="Entertainment">Entertainment</option>
+                 <option value="Bills & Fees">Bills & Fees</option>
+                 <option value="Gifts">Gifts</option>
+                 <option value="Beauty">Beauty</option>
+                 <option value="Work">Work</option>
+                 <option value="Travel">Travel</option>
+            </select>
+        </div>
+      </div>
+      <div class="modalBottomSection">
+        <button type="submit" class="bottomButtons">Update Transaction</button>
+      </div>
+    </form>
+  </div>
+</div>
+
     <section class="transactions">
 
     </section>
