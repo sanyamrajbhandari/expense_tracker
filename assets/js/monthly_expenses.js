@@ -173,87 +173,102 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
    Edit / Delete Functionality
    ============================ */
 
-const editModal = document.getElementById("editTransactionModal");
-const closeEditBtn = document.getElementById("closeEditModal");
-const editForm = document.getElementById("editTransactionForm");
+document.addEventListener("DOMContentLoaded", () => {
+    const editModal = document.getElementById("editTransactionModal");
+    const closeEditBtn = document.getElementById("closeEditModal");
+    const editForm = document.getElementById("editTransactionForm");
 
-if(closeEditBtn) {
-    closeEditBtn.onclick = () => editModal.classList.remove("show");
-}
+    if (closeEditBtn && editModal) {
+        closeEditBtn.onclick = () => editModal.classList.remove("show");
+    }
 
-window.onclick = (e) => {
-    if (e.target === editModal) editModal.classList.remove("show");
-};
+    if (editModal) {
+        window.addEventListener("click", (e) => {
+            if (e.target === editModal) editModal.classList.remove("show");
+        });
+    }
+
+    if (editForm) {
+        editForm.onsubmit = (e) => {
+            e.preventDefault();
+            const formData = new FormData(editForm);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch("../public/update_transaction.php", {
+                method: "POST",
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if (resData.success) {
+                    editModal.classList.remove("show");
+                    location.reload();
+                } else {
+                    alert(resData.error || "Update failed");
+                }
+            })
+            .catch(err => {
+                console.error("Update failed:", err);
+                alert("An error occurred during update");
+            });
+        };
+    }
+});
 
 // Global function to be called from inline onclick
 window.editTransaction = function(id) {
+    const editModal = document.getElementById("editTransactionModal");
+    if (!editModal) {
+        console.error("Edit modal not found");
+        return;
+    }
+
     console.log("editTransaction called with ID:", id); // DEBUG
-    if(!id) { alert("Invalid ID"); return; }
-    
+    if (!id) {
+        alert("Invalid ID");
+        return;
+    }
+
     // 1. Fetch details
     fetch(`../public/get_transaction.php?id=${id}`)
     .then(res => res.json())
     .then(data => {
         console.log("Fetch result:", data); // DEBUG
-        if(data.success) {
+        if (data.success) {
             const t = data.transaction;
             document.getElementById("editId").value = t.id;
             document.getElementById("editTitle").value = t.title;
             document.getElementById("editAmount").value = t.amount;
             document.getElementById("editCategory").value = t.category || "Dining";
-            
+
             editModal.classList.add("show");
         } else {
-            alert("Error fetching transaction: " + (data.error || "Unknown"));
+            alert("Error fetching transaction: " + (data.error || "Unknown error"));
         }
     })
     .catch(err => {
         console.error("Fetch failed:", err);
-        alert("Fetch failed");
+        alert("Failed to fetch transaction details");
     });
 };
 
 window.deleteTransaction = function(id) {
-    if(!confirm("Are you sure you want to delete this transaction?")) return;
+    if (!confirm("Are you sure you want to delete this transaction?")) return;
 
     fetch("../public/delete_transaction.php", {
         method: "POST",
-        body: JSON.stringify({id: id})
+        body: JSON.stringify({ id: id })
     })
     .then(res => res.json())
     .then(data => {
-        if(data.success) {
-            // Reload current month
-            // We need to re-fetch
-            const currentMonthTitle = document.getElementById("monthTitle").textContent;
-            // Best way is just reload page or reload loadMonth()
-            // Let's assume reloading loadMonth with stored current selection is cleaner but simple reload works too
-             location.reload(); 
+        if (data.success) {
+            location.reload();
         } else {
             alert(data.error || "Failed to delete");
         }
+    })
+    .catch(err => {
+        console.error("Delete failed:", err);
+        alert("An error occurred during deletion");
     });
 };
-
-if(editForm) {
-    editForm.onsubmit = (e) => {
-        e.preventDefault();
-        const formData = new FormData(editForm);
-        // Convert to JSON object
-        const data = Object.fromEntries(formData.entries());
-
-        fetch("../public/update_transaction.php", {
-            method: "POST",
-            body: JSON.stringify(data)
-        })
-        .then(res => res.json())
-        .then(resData => {
-            if(resData.success) {
-                editModal.classList.remove("show");
-                location.reload();
-            } else {
-                alert(resData.error || "Update failed");
-            }
-        });
-    };
-}

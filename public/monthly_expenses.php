@@ -40,8 +40,6 @@ if (!isset($_SESSION['user_name'])) {
 
 </main>
 
-<script src="../assets/js/monthly_expenses.js"></script>
-
 <!-- Edit Transaction Modal -->
 <div class="overlay" id="editTransactionModal">
   <div class="formModal">
@@ -66,7 +64,6 @@ if (!isset($_SESSION['user_name'])) {
         <div class="formGroup">
             <label>Category</label>
             <select name="category" id="editCategory" required>
-                <!-- Can populate via JS like Script.js or hardcode common ones -->
                  <option value="Dining">Dining</option>
                  <option value="Groceries">Groceries</option>
                  <option value="Shopping">Shopping</option>
@@ -86,3 +83,5 @@ if (!isset($_SESSION['user_name'])) {
     </form>
   </div>
 </div>
+
+<script src="../assets/js/monthly_expenses.js"></script>
