@@ -36,7 +36,10 @@ $username = $_SESSION['user_name'] ?? 'Guest';
 
 
     <div class="profile">
-      <span class="name"><i class="fas fa-user-circle"></i> <?= htmlspecialchars($username) ?></span>
+      <span class="name"><i class="fas fa-user-circle"></i> <?= e($username) ?></span>
+      <a href="../public/api/actions/logout.php" class="logout-link" title="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
     </div>
   </header>
 

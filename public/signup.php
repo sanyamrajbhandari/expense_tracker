@@ -4,15 +4,15 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
     require "../config/db.php";
+    require_once "../includes/security.php";
+    $errorMessage = "";
+    $successMessage = "";
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $name = trim($_POST['name']?? "");
         $email = trim($_POST['email']??"");
         $password = trim($_POST['password']??"");
         $confirmPassword = trim($_POST['confirmPassword']??"");
-        $errorMessage = "";
-        $successMessage = "";
-
         //Checking for empty values
         if(empty($name)||empty($email)||empty($password)||empty($confirmPassword)){
             $errorMessage = "Please fill all of the fields for registration";
@@ -102,45 +102,53 @@ error_reporting(E_ALL);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Signup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | PaisaKhai</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Create Account</h2>
+            <p class="auth-subtitle">Join us and start tracking</p>
 
-    <h2>Signup for your account</h2>
+            <?php if ($errorMessage !== ""): ?>
+                <div class="error-msg"><?= e($errorMessage) ?></div>
+            <?php endif; ?>
 
-    <form method="POST">
-        <div>
-            <label>Name:</label><br>
-            <input type="text" name="name" placeholder="Please enter your name" required >
+            <?php if ($successMessage !== ""): ?>
+                <div class="success-msg"><?= $successMessage ?></div>
+            <?php endif; ?>
+
+            <form method="POST">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Min. 8 characters" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+
+                <button type="submit" class="btn-auth">Sign Up</button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? 
+                <a href="login.php">Log in</a>
+            </div>
         </div>
-
-        <br>
-
-        <div>
-            <label>Email</label><br>
-            <input type="email" name="email" placeholder="Please enter your email" required>
-        </div>
-
-        <br>
-
-        <div>
-            <label>Password</label><br>
-            <input type="password" name="password" placeholder="Please enter your password" required>
-        </div>
-
-        <br>
-        <div>
-            <label>Confirm password</label><br>
-            <input type="password" name="confirmPassword" placeholder="Please re-enter your password" required>
-        </div>
-
-        <br>
-
-        <p style="color:red"><?= $errorMessage??""?></p>
-        <p style="color:green"><?= $successMessage??""?></p>
-
-        <button type="submit">Sign up</button>
-    </form>
-
+    </div>
 </body>
 </html>

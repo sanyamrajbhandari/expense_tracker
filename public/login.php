@@ -1,5 +1,6 @@
 <?php
 require "../config/db.php";
+require_once "../includes/security.php";
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $name = trim($_POST['name']?? "");
@@ -55,37 +56,39 @@ require "../config/db.php";
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PaisaKhai</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Welcome Back</h2>
+            <p class="auth-subtitle">Log in to manage your expenses</p>
 
-    <h2>Login</h2>
+            <?php if ($errorMessage !== ""): ?>
+                <div class="error-msg"><?= e($errorMessage) ?></div>
+            <?php endif; ?>
 
-    <form method="POST">
+            <form method="POST">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="name@example.com" required>
+                </div>
 
-        <div>
-            <label>Email</label><br>
-            <input type="email" name="email" placeholder="Enter your email" required>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn-auth">Login</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? 
+                <a href="signup.php">Sign up here</a>
+            </div>
         </div>
-
-        <br>
-
-        <div>
-            <label>Password</label><br>
-            <input type="password" name="password" placeholder="Enter your password" required>
-        </div>
-
-        <br>
-
-        <button type="submit">Login</button>
-    </form>
-
-    <p>
-        Don't have an account?
-        <a href="signup.php">Sign up here</a>
-    </p>
-
-    <p style="color:red"><?= $errorMessage??""?></p>
-
+    </div>
 </body>
 </html>
