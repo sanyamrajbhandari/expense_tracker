@@ -37,9 +37,12 @@ $username = $_SESSION['user_name'] ?? 'Guest';
 
     <div class="profile">
       <span class="name"><i class="fas fa-user-circle"></i> <?= e($username) ?></span>
-      <a href="../public/api/actions/logout.php" class="logout-link" title="Logout">
-        <i class="fas fa-sign-out-alt"></i>
-      </a>
+      <form action="../public/api/actions/logout.php" method="POST" style="display: inline;">
+        <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
+        <button type="submit" class="logout-link" title="Logout" style="background: none; border: none; padding: 0; cursor: pointer;">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </form>
     </div>
   </header>
 
