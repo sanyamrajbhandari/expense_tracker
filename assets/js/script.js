@@ -29,15 +29,43 @@ if (categorySelect) {
 const modal = document.getElementById("overlay");
 const openBtn = document.getElementById("addTransactionBtn");
 const closeBtn = document.getElementById("closeModal");
+const cancelBtn = document.getElementById("cancelModal");
+const modalTitle = document.getElementById("modalTitle");
+const submitBtn = document.getElementById("submitBtn");
+const transactionForm = document.getElementById("transactionForm");
+const transactionIdInput = document.getElementById("transactionId");
 
 if (openBtn) {
   openBtn.addEventListener("click", () => {
+    // Resetting form for "Add" mode
+    transactionForm.reset();
+    transactionIdInput.value = "";
+    
+    // Setting default date and time
+    const now = new Date();
+    const dateInput = document.getElementById("date");
+    const timeInput = document.getElementById("time");
+    if (dateInput) {
+      dateInput.value = now.toISOString().split('T')[0];
+    }
+    if (timeInput) {
+      timeInput.value = now.toTimeString().substring(0, 5);
+    }
+
+    modalTitle.textContent = "Add a transaction";
+    submitBtn.textContent = "Save transaction";
     modal.classList.add("show");
   });
 }
 
 if (closeBtn) {
   closeBtn.addEventListener("click", () => {
+    modal.classList.remove("show");
+  });
+}
+
+if (cancelBtn) {
+  cancelBtn.addEventListener("click", () => {
     modal.classList.remove("show");
   });
 }
@@ -127,7 +155,7 @@ function renderWallets(wallets) {
   }
 }
 
-/* Helper for icons (Standardized) */
+// Helper function for icons
 function getIcon(cat) {
   const c = cat ? cat.toLowerCase() : "";
   if (c === "dining") return ["fa-utensils", "icon-orange"];
@@ -201,16 +229,19 @@ function renderTransactions(grouped) {
   `;
 }
 
-//To add transaction
-const transactionForm = document.getElementById("transactionForm");
-
+//To add/edit transaction
 if (transactionForm) {
   transactionForm.addEventListener("submit", function (e) {
     e.preventDefault(); // stop page reload
 
     const formData = new FormData(transactionForm);
+    const id = transactionIdInput.value;
+    const url = id ? "api/actions/update_transaction.php" : "api/actions/add_transaction.php";
+    if(id) {
+        formData.append('wallet_id', formData.get('wallet'));
+    }
 
-    fetch("api/actions/add_transaction.php", {
+    fetch(url, {
       method: "POST",
       headers: {
         "X-CSRF-TOKEN": formData.get("csrf_token"),
@@ -220,32 +251,16 @@ if (transactionForm) {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          // THIS is the interaction point
           modal.classList.remove("show");
           loadDashboard(); // refresh wallets + transactions
         } else {
-          alert(data.message);
+          alert(data.message || data.error || "Something went wrong");
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(err);
         alert("Something went wrong");
       });
-  });
-}
-
-// Edit and delete functionality
-
-const editModal = document.getElementById("editTransactionModal");
-const closeEditBtn = document.getElementById("closeEditModal");
-const editForm = document.getElementById("editTransactionForm");
-
-if (editModal && closeEditBtn) {
-  closeEditBtn.addEventListener("click", () =>
-    editModal.classList.remove("show"),
-  );
-
-  window.addEventListener("click", (e) => {
-    if (e.target === editModal) editModal.classList.remove("show");
   });
 }
 
@@ -260,10 +275,13 @@ window.editTransaction = function (id) {
       if (txnData.success && walletData.success) {
         const t = txnData.transaction;
 
+        // Reset form first
+        transactionForm.reset();
+
         // Populating wallets dropdown
-        const walletSelect = document.getElementById("editWallet");
+        const walletSelect = document.getElementById("walletSelect");
         if (walletSelect) {
-          walletSelect.innerHTML = "";
+          walletSelect.innerHTML = '<option value="">Select wallet</option>';
           walletData.wallets.forEach((w) => {
             const opt = document.createElement("option");
             opt.value = w.id;
@@ -273,27 +291,34 @@ window.editTransaction = function (id) {
           walletSelect.value = t.wallet_id;
         }
 
-        const editId = document.getElementById("editId");
-        const editTitle = document.getElementById("editTitle");
-        const editAmount = document.getElementById("editAmount");
-        const editCategory = document.getElementById("editCategory");
-        const txt = document.createElement("textarea");
-
-        if (editId) editId.value = t.id;
-
-        if (editTitle) {
-          txt.innerHTML = t.title;
-          editTitle.value = txt.value;
+        document.getElementById("transactionId").value = t.id;
+        document.getElementById("title").value = t.title;
+        document.getElementById("amount").value = t.amount;
+        document.getElementById("categoryDropdown").value = t.category || "Dining";
+        
+        // Handling date and time splitting
+        const dateInput = document.getElementById("date");
+        const timeInput = document.getElementById("time");
+        
+        if (dateInput && t.transaction_datetime) {
+            // Usually DB returns YYYY-MM-DD HH:MM:SS
+            const [dateStr, timeStr] = t.transaction_datetime.split(' ');
+            dateInput.value = dateStr;
+            if (timeInput && timeStr) {
+                timeInput.value = timeStr.substring(0, 5); // HH:mm
+            }
         }
 
-        if (editAmount) editAmount.value = t.amount;
-
-        if (editCategory) {
-          txt.innerHTML = t.category || "Dining";
-          editCategory.value = txt.value;
+        // Setting type radio
+        if (t.type === 'expense') {
+            document.getElementById("typeExpense").checked = true;
+        } else {
+            document.getElementById("typeIncome").checked = true;
         }
 
-        if (editModal) editModal.classList.add("show");
+        modalTitle.textContent = "Edit Transaction";
+        submitBtn.textContent = "Update Transaction";
+        modal.classList.add("show");
       } else {
         alert("Error fetching data");
       }
@@ -317,35 +342,10 @@ window.deleteTransaction = function (id) {
     .then((res) => res.json())
     .then((data) => {
       if (data.success) {
-        location.reload();
+        loadDashboard();
       } else {
         alert(data.error || "Failed to delete");
       }
     });
 };
 
-if (editForm) {
-  editForm.onsubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(editForm);
-    // Converting to JSON object
-    const data = Object.fromEntries(formData.entries());
-
-    fetch("api/actions/update_transaction.php", {
-      method: "POST",
-      headers: {
-        "X-CSRF-TOKEN": data.csrf_token,
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((resData) => {
-        if (resData.success) {
-          editModal.classList.remove("show");
-          location.reload();
-        } else {
-          alert(resData.error || "Update failed");
-        }
-      });
-  };
-}

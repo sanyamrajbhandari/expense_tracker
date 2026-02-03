@@ -40,54 +40,89 @@ if (!isset($_SESSION['user_name'])) {
 
 </main>
 
-<!-- Edit Transaction Modal -->
-<div class="overlay" id="editTransactionModal">
+<!-- Unified Transaction Modal (Reused from Dashboard) -->
+<div class = "overlay" id="overlay">
   <div class="formModal">
     <div class="modalTopSection">
-      <p>Edit Transaction</p>
-      <button id="closeEditModal"><i class="fas fa-times"></i></button>
+      <p id="modalTitle">Edit Transaction</p>
+      <button id="closeModal"><i class="fas fa-times"></i></button>
     </div>
-    <form id="editTransactionForm">
-      <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
-      <input type="hidden" name="id" id="editId">
-      <div class="modalMiddleSection">
-        <div class="formGroup">
-            <label>Title</label>
-            <input type="text" name="title" id="editTitle" required>
+
+    <div class="modalMiddleSection">
+      <form id="transactionForm" method = "POST">
+        <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
+        <input type="hidden" name="id" id="transactionId">
+
+        <!-- Div for the radio buttons for income or expense selection -->
+        <div class="transactionType">
+          <label class="expense">
+            <input type="radio" name="type" id="typeExpense" value="expense" checked>
+            <span>Expense</span>
+          </label>
+          <label class="income">
+            <input type="radio" name="type" id="typeIncome" value="income">
+            <span>Income</span>
+          </label>
         </div>
+
+        <!-- The title of the expense -->
         <div class="formGroup">
-            <label>Amount</label>
-            <div class="inputWithPrefix">
-                <span>Rs.</span>
-                <input type="number" name="amount" id="editAmount" required>
-            </div>
+          <label for="title">Title</label>
+          <input id="title" type="text" name="title" required>
         </div>
+
+        <!-- Expense amount -->
         <div class="formGroup">
-            <label>Category</label>
-            <select name="category" id="editCategory" required>
-                 <option value="Dining">Dining</option>
-                 <option value="Groceries">Groceries</option>
-                 <option value="Shopping">Shopping</option>
-                 <option value="Transit">Transit</option>
-                 <option value="Entertainment">Entertainment</option>
-                 <option value="Bills & Fees">Bills & Fees</option>
-                 <option value="Gifts">Gifts</option>
-                 <option value="Beauty">Beauty</option>
-                 <option value="Work">Work</option>
-                 <option value="Travel">Travel</option>
-            </select>
+          <label for="amount">Amount</label>
+          <div class="inputWithPrefix">
+            <span>Rs.</span>
+            <input id="amount" type="number" name="amount" required>
+          </div>
         </div>
+
+        <!-- Expense category -->
         <div class="formGroup">
-            <label>Wallet</label>
-            <select name="wallet_id" id="editWallet" required>
-                <!-- Wallets populated via JS -->
-            </select>
+          <label for="categoryDropdown">Category</label>
+          <select name="category" id="categoryDropdown" required>
+            <option value="Dining">Dining</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Transit">Transit</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Bills & Fees">Bills & Fees</option>
+            <option value="Gifts">Gifts</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Work">Work</option>
+            <option value="Travel">Travel</option>
+          </select>
         </div>
-      </div>
-      <div class="modalBottomSection">
-        <button type="submit" class="bottomButtons">Update Transaction</button>
-      </div>
-    </form>
+
+        <!-- The div for expense category and Date -->
+        <div class="formRow">
+          <div class="formGroup">
+            <label for="date">Date</label>
+            <input id="date" type="date" name="date">
+          </div>
+          <div class="formGroup">
+            <label for="time">Time</label>
+            <input id="time" type="time" name="time">
+          </div>
+        </div>
+
+        <!-- Select for the wallet/account -->
+        <div class="formGroup">
+          <label for="walletSelect">Wallet/Account</label>
+          <select name="wallet" id="walletSelect" required>
+            <option value="">Select wallet</option>
+          </select>
+        </div>
+
+        <div class="modalBottomSection">
+          <button type = "submit" id="submitBtn" class="bottomButtons">Update Transaction</button>
+          <button type="button" class="bottomButtons" id="cancelModal">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 

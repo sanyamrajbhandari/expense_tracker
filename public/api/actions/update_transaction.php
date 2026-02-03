@@ -18,15 +18,20 @@ if (empty($input)) {
 }
 
 $id = $input['id'] ?? null;
+$type = $input['type'] ?? '';
 $title = trim($input['title'] ?? '');
 $amount = $input['amount'] ?? null;
 $category = $input['category'] ?? null;
-$wallet_id = $input['wallet_id'] ?? null;
+$date = $input['date'] ?? '';
+$time = $input['time'] ?? '';
+$wallet_id = $input['wallet_id'] ?? $input['wallet'] ?? null;
 
-if (!$id || $title === '' || $amount <= 0 || !$category || !$wallet_id) {
+if (!$id || !$type || $title === '' || $amount <= 0 || !$category || !$wallet_id || !$date || !$time) {
     echo json_encode(['success' => false, 'error' => e('Invalid input data')]);
     exit;
 }
+
+$transactionDateTime = $date . ' ' . $time . ':00';
 
 // Starting transaction
 $conn->beginTransaction();
@@ -49,12 +54,12 @@ try {
     $revertStmt->execute([$revertAdjustment, $oldTxn['wallet_id'], $_SESSION['user_id']]);
 
     //Updating the transaction
-    $updateSql = "UPDATE transactions SET title = ?, amount = ?, category = ?, wallet_id = ? WHERE id = ? AND user_id = ?";
+    $updateSql = "UPDATE transactions SET type = ?, title = ?, amount = ?, category = ?, wallet_id = ?, transaction_datetime = ? WHERE id = ? AND user_id = ?";
     $updateStmt = $conn->prepare($updateSql);
-    $updateStmt->execute([$title, $amount, $category, $wallet_id, $id, $_SESSION['user_id']]);
+    $updateStmt->execute([$type, $title, $amount, $category, $wallet_id, $transactionDateTime, $id, $_SESSION['user_id']]);
 
     //Applying new balance effect on new wallet
-    $newAdjustment = ($oldTxn['type'] === 'expense') ? -$amount : $amount;
+    $newAdjustment = ($type === 'expense') ? -$amount : $amount;
     $applyStmt = $conn->prepare("UPDATE wallets SET balance = balance + ? WHERE id = ? AND user_id = ?");
     $applyStmt->execute([$newAdjustment, $wallet_id, $_SESSION['user_id']]);
 

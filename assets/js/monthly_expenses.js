@@ -150,126 +150,155 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
 });
 
 // Edit and delete functionality
-
 document.addEventListener("DOMContentLoaded", () => {
-  const editModal = document.getElementById("editTransactionModal");
-  const closeEditBtn = document.getElementById("closeEditModal");
-  const editForm = document.getElementById("editTransactionForm");
+    const modal = document.getElementById("overlay");
+    const closeBtn = document.getElementById("closeModal");
+    const cancelBtn = document.getElementById("cancelModal");
+    const transactionForm = document.getElementById("transactionForm");
+    const transactionIdInput = document.getElementById("transactionId");
 
-  if (closeEditBtn && editModal) {
-    closeEditBtn.onclick = () => editModal.classList.remove("show");
-  }
+    if (closeBtn) {
+        closeBtn.onclick = () => modal.classList.remove("show");
+    }
 
-  if (editModal) {
-    window.addEventListener("click", (e) => {
-      if (e.target === editModal) editModal.classList.remove("show");
-    });
-  }
+    if (cancelBtn) {
+        cancelBtn.onclick = () => modal.classList.remove("show");
+    }
 
-  if (editForm) {
-    editForm.onsubmit = (e) => {
-      e.preventDefault();
-      const formData = new FormData(editForm);
-      const data = Object.fromEntries(formData.entries());
-
-      fetch("api/actions/update_transaction.php", {
-        method: "POST",
-        headers: { "X-CSRF-TOKEN": data.csrf_token },
-        body: JSON.stringify(data),
-      })
-        .then((res) => res.json())
-        .then((resData) => {
-          if (resData.success) {
-            editModal.classList.remove("show");
-            location.reload();
-          } else {
-            alert(resData.error || "Update failed");
-          }
-        })
-        .catch((err) => {
-          console.error("Update failed:", err);
-          alert("An error occurred during update");
+    if (modal) {
+        window.addEventListener("click", (e) => {
+            if (e.target === modal) modal.classList.remove("show");
         });
-    };
-  }
+    }
+
+    if (transactionForm) {
+        transactionForm.onsubmit = (e) => {
+            e.preventDefault();
+            const formData = new FormData(transactionForm);
+            const id = transactionIdInput.value;
+            
+            // Monthly script only handles updates (Add is on Dashboard),
+            // but for consistency with same modal:
+            const url = id ? "api/actions/update_transaction.php" : "api/actions/add_transaction.php";
+
+            if (id) {
+                formData.append('wallet_id', formData.get('wallet'));
+            }
+
+            fetch(url, {
+                method: "POST",
+                headers: { "X-CSRF-TOKEN": formData.get("csrf_token") },
+                body: formData,
+            })
+                .then((res) => res.json())
+                .then((resData) => {
+                    if (resData.success) {
+                        modal.classList.remove("show");
+                        location.reload();
+                    } else {
+                        alert(resData.error || resData.message || "Operation failed");
+                    }
+                })
+                .catch((err) => {
+                    console.error("Operation failed:", err);
+                    alert("An error occurred");
+                });
+        };
+    }
 });
 
 // Global function to be called from inline onclick
 window.editTransaction = function (id) {
-  const editModal = document.getElementById("editTransactionModal");
-  if (!editModal) {
-    console.error("Edit modal not found");
-    return;
-  }
+    const modal = document.getElementById("overlay");
+    const transactionForm = document.getElementById("transactionForm");
+    
+    if (!modal) {
+        console.error("Modal not found");
+        return;
+    }
 
-  //Fetching transaction details and all wallets
-  Promise.all([
-    fetch(`api/fetch/get_transaction.php?id=${id}`).then((res) => res.json()),
-    fetch(`api/fetch/fetch_wallets.php`).then((res) => res.json()),
-  ])
-    .then(([txnData, walletData]) => {
-      if (txnData.success && walletData.success) {
-        const t = txnData.transaction;
+    //Fetching transaction details and all wallets
+    Promise.all([
+        fetch(`api/fetch/get_transaction.php?id=${id}`).then((res) => res.json()),
+        fetch(`api/fetch/fetch_wallets.php`).then((res) => res.json()),
+    ])
+        .then(([txnData, walletData]) => {
+            if (txnData.success && walletData.success) {
+                const t = txnData.transaction;
+                
+                // Reset form first
+                transactionForm.reset();
 
-        // for populating wallets dropdown
-        const walletSelect = document.getElementById("editWallet");
-        walletSelect.innerHTML = "";
-        walletData.wallets.forEach((w) => {
-          const opt = document.createElement("option");
-          opt.value = w.id;
-          opt.textContent = w.name;
-          walletSelect.appendChild(opt);
+                // for populating wallets dropdown
+                const walletSelect = document.getElementById("walletSelect");
+                walletSelect.innerHTML = '<option value="">Select wallet</option>';
+                walletData.wallets.forEach((w) => {
+                    const opt = document.createElement("option");
+                    opt.value = w.id;
+                    opt.textContent = w.name;
+                    walletSelect.appendChild(opt);
+                });
+                walletSelect.value = t.wallet_id;
+
+                // Setting form values
+                document.getElementById("transactionId").value = t.id;
+                document.getElementById("title").value = t.title;
+                document.getElementById("amount").value = t.amount;
+                document.getElementById("categoryDropdown").value = t.category || "Dining";
+
+                // Handling date and time splitting
+                const dateInput = document.getElementById("date");
+                const timeInput = document.getElementById("time");
+                
+                if (dateInput) {
+                    dateInput.value = t.transaction_datetime.split(' ')[0];
+                }
+                if (timeInput) {
+                    const timeStr = t.transaction_datetime.split(' ')[1];
+                    timeInput.value = timeStr.substring(0, 5); // HH:mm
+                }
+
+                // Setting type radio
+                if (t.type === 'expense') {
+                    document.getElementById("typeExpense").checked = true;
+                } else {
+                    document.getElementById("typeIncome").checked = true;
+                }
+
+                document.getElementById("modalTitle").textContent = "Edit Transaction";
+                document.getElementById("submitBtn").textContent = "Update Transaction";
+                modal.classList.add("show");
+            } else {
+                alert("Error fetching data");
+            }
+        })
+        .catch((err) => {
+            console.error("Fetch failed:", err);
+            alert("Failed to fetch details");
         });
-
-        // Setting form values
-        const txt = document.createElement("textarea");
-
-        document.getElementById("editId").value = t.id;
-
-        txt.innerHTML = t.title;
-        document.getElementById("editTitle").value = txt.value;
-
-        document.getElementById("editAmount").value = t.amount;
-
-        txt.innerHTML = t.category || "Dining";
-        document.getElementById("editCategory").value = txt.value;
-
-        walletSelect.value = t.wallet_id;
-
-        editModal.classList.add("show");
-      } else {
-        alert(
-          "Error fetching data: " +
-            (txnData.error || walletData.error || "Unknown error"),
-        );
-      }
-    })
-    .catch((err) => {
-      console.error("Fetch failed:", err);
-      alert("Failed to fetch details");
-    });
 };
 
 window.deleteTransaction = function (id) {
-  if (!confirm("Are you sure you want to delete this transaction?")) return;
+    if (!confirm("Are you sure you want to delete this transaction?")) return;
 
-  fetch("api/actions/delete_transaction.php", {
-    method: "POST",
-    headers: {
-      "X-CSRF-TOKEN": document.querySelector('input[name="csrf_token"]').value,
-    },
-    body: JSON.stringify({ id: id }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        location.reload();
-      } else {
-        alert(data.error || "Failed to delete");
-      }
+    fetch("api/actions/delete_transaction.php", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('input[name="csrf_token"]').value,
+        },
+        body: JSON.stringify({ id: id }),
     })
-    .catch((err) => {
-      console.error("Delete failed:", err);
-      alert("An error occurred during deletion");
-    });
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || "Failed to delete");
+            }
+        })
+        .catch((err) => {
+            console.error("Delete failed:", err);
+            alert("An error occurred during deletion");
+        });
 };
+
