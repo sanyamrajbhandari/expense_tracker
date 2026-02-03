@@ -6,7 +6,7 @@ verify_csrf_api();
 
 header("Content-Type: application/json");
 
-// 1. Check login
+//Checking login
 if (!isset($_SESSION['user_id'])) {
     echo json_encode([
         "success" => false,
@@ -17,7 +17,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-// 2. Get POST data
+//Getting POST data
 $type     = $_POST['type'] ?? '';
 $title    = trim($_POST['title'] ?? '');
 $amount   = $_POST['amount'] ?? 0;
@@ -26,7 +26,7 @@ $date     = $_POST['date'] ?? '';
 $time     = $_POST['time'] ?? '';
 $walletId = $_POST['wallet'] ?? '';
 
-// 3. Basic validation
+//Form validation
 if ($title === '') {
     echo json_encode([
         "success" => false,
@@ -53,14 +53,14 @@ if (!$walletId) {
 }
 
 
-// Combine date + time → DATETIME
+// Combining date and time to form DATETIME
 $transactionDateTime = $date . ' ' . $time . ':00';
 
 try {
-    // 4. Start DB transaction
+    //Starting DB transaction for multiple queries
     $conn->beginTransaction();
 
-    // 5. Insert transaction
+    //Insert transaction query
     $insertSql = "
         INSERT INTO transactions 
         (user_id, wallet_id, type, title, category, amount, transaction_datetime)
@@ -78,7 +78,7 @@ try {
         $transactionDateTime
     ]);
 
-    // 6. Update wallet balance
+    //Update transaction query
     if ($type === 'expense') {
         $updateSql = "
             UPDATE wallets 
@@ -96,10 +96,10 @@ try {
     $stmt = $conn->prepare($updateSql);
     $stmt->execute([$amount, $walletId, $userId]);
 
-    // 7. Commit DB changes
+    //Committing the DB changes
     $conn->commit();
 
-    // 8. Success response
+    //Success response
     echo json_encode([
         "success" => true,
         "message" => e("Transaction added successfully")

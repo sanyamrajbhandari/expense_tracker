@@ -1,5 +1,3 @@
-// Data is now pre-escaped on the server using e() (htmlspecialchars)
-
 document.addEventListener("DOMContentLoaded", () => {
     loadWallets();
     setupModal();
@@ -17,9 +15,6 @@ function loadWallets(walletId = null) {
                 console.error("Failed to fetch wallets:", data.error);
                 return;
             }
-
-            // If we requested a specific ID but got no selected wallet, it might be invalid
-            // In that case, just render whatever we have.
             renderWalletsList(data.wallets, data.selected_wallet);
             renderWalletDetails(data.selected_wallet, data.transactions);
         })
@@ -43,8 +38,8 @@ function renderWalletsList(wallets, selectedWallet) {
         
         card.className = `wallet-card ${isSelected ? 'selected' : ''}`;
 
-        // Determine icon based on name
-        let iconClass = "fa-wallet"; // default
+        // Determinig icon based on name
+        let iconClass = "fa-wallet"; // default icon for wallet
         const lowerName = wallet.name.toLowerCase();
         if (lowerName.includes("cash")) iconClass = "fa-money-bill-wave";
         else if (lowerName.includes("bank") || lowerName.includes("account")) iconClass = "fa-university";
@@ -61,8 +56,7 @@ function renderWalletsList(wallets, selectedWallet) {
         </div>
         ${isSelected ? '<div class="check-icon"><i class="fas fa-check-circle"></i></div>' : ''}
         `;
-
-        // Use closure to capture the correct ID
+        
         card.onclick = () => {
              loadWallets(wallet.id);
         };
@@ -251,8 +245,6 @@ window.editWallet = function(id, name, balance) {
     const modal = document.getElementById("editWalletModal");
     if(modal) {
         document.getElementById("editWalletId").value = id;
-        
-        // Unescape for the input field so user sees raw data
         const txt = document.createElement("textarea");
         txt.innerHTML = name;
         document.getElementById("editWalletName").value = txt.value;

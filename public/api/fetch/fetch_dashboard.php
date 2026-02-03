@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-/* Fetch wallets */
+// fetching wallets
 $walletStmt = $conn->prepare(
     "SELECT id, name, balance 
      FROM wallets 
@@ -26,7 +26,7 @@ foreach ($wallets as &$w) {
 }
 unset($w);
 
-/* Fetch transactions */
+// fetching transactions
 $txnStmt = $conn->prepare(
     "SELECT 
     t.id,
@@ -54,7 +54,7 @@ foreach ($transactions as &$txn) {
 }
 unset($txn);
 
-/* Group transactions by date */
+//the grouped transactions by date
 $grouped = [];
 
 foreach ($transactions as $txn) {

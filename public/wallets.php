@@ -77,8 +77,6 @@ if (!isset($_SESSION['user_id'])) {
                 <label>Wallet Name</label>
                 <input type="text" name="name" id="editWalletName" required>
             </div>
-            <!-- Balance editing is restricted or we can allow it with warning -->
-            <!-- Let's allow simple name edit first as per common practice, but plan mentioned update_wallet supports balance -->
             <div class="formGroup">
                 <label>Balance (Manual Adjustment)</label>
                 <div class="inputWithPrefix">

@@ -18,8 +18,6 @@ if (empty($input)) {
 
 $id = $input['id'] ?? null;
 $name = trim($input['name'] ?? '');
-// Balance updates usually happen via transactions, but editing name is common. 
-// If user wants to manually adjust balance, we can allow it.
 $balance = $input['balance'] ?? null; 
 
 if (!$id || $name === '') {

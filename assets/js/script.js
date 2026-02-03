@@ -12,8 +12,6 @@ const categories = [
   "Travel",
 ];
 
-// Data is now pre-escaped on the server using e() (htmlspecialchars)
-
 // Selecting the category select element to add categories
 const categorySelect = document.getElementById("categoryDropdown");
 
@@ -75,9 +73,9 @@ function renderWalletOptions(wallets) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Only load dashboard if we are on the dashboard page (check for a specific element)
+  // Only load dashboard if we are on the dashboard page
   if (document.getElementById("netWorth")) {
-      loadDashboard();
+    loadDashboard();
   }
 });
 
@@ -116,9 +114,9 @@ function renderWallets(wallets) {
     `;
   });
 
-  // If there are more than 5, show "View All" card
+  // If there are more than 5, showing "View all card"
   if (wallets.length > 5) {
-      container.innerHTML += `
+    container.innerHTML += `
         <div class="card wallet view-all-card" onclick="window.location.href='wallets.php'" style="cursor: pointer; display: flex; align-items: center; justify-content: center; background: #eef2ff; color: #4f46e5;">
             <div style="text-align: center;">
                 <i class="fas fa-arrow-right" style="font-size: 24px; margin-bottom: 8px;"></i>
@@ -131,23 +129,24 @@ function renderWallets(wallets) {
 
 /* Helper for icons (Standardized) */
 function getIcon(cat) {
-    const c = cat ? cat.toLowerCase() : "";
-    if (c === "dining") return ["fa-utensils", "icon-orange"];
-    if (c === "groceries") return ["fa-shopping-basket", "icon-green"]; // Changed to green for groceries
-    if (c === "shopping") return ["fa-shopping-bag", "icon-purple"];
-    if (c === "transit") return ["fa-bus", "icon-blue"];
-    if (c === "entertainment") return ["fa-film", "icon-red"];
-    if (c.includes("bill") || c === "fees") return ["fa-file-invoice-dollar", "icon-gray"]; // Bills & Fees
-    if (c === "gifts") return ["fa-gift", "icon-purple"];
-    if (c === "beauty") return ["fa-spa", "icon-red"];
-    if (c === "work") return ["fa-briefcase", "icon-blue"];
-    if (c === "travel") return ["fa-plane", "icon-blue"];
-    return ["fa-tag", "icon-gray"];
+  const c = cat ? cat.toLowerCase() : "";
+  if (c === "dining") return ["fa-utensils", "icon-orange"];
+  if (c === "groceries") return ["fa-shopping-basket", "icon-green"]; // Changed to green for groceries
+  if (c === "shopping") return ["fa-shopping-bag", "icon-purple"];
+  if (c === "transit") return ["fa-bus", "icon-blue"];
+  if (c === "entertainment") return ["fa-film", "icon-red"];
+  if (c.includes("bill") || c === "fees")
+    return ["fa-file-invoice-dollar", "icon-gray"]; // Bills & Fees
+  if (c === "gifts") return ["fa-gift", "icon-purple"];
+  if (c === "beauty") return ["fa-spa", "icon-red"];
+  if (c === "work") return ["fa-briefcase", "icon-blue"];
+  if (c === "travel") return ["fa-plane", "icon-blue"];
+  return ["fa-tag", "icon-gray"];
 }
 
 function formatTime(dateStr) {
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 function renderTransactions(grouped) {
@@ -161,7 +160,7 @@ function renderTransactions(grouped) {
 
     grouped[date].forEach((txn) => {
       const [icon, colorClass] = getIcon(txn.category);
-      
+
       section.innerHTML += `
             <div class="transaction">
                 <div class="txn-left-content">
@@ -191,7 +190,7 @@ function renderTransactions(grouped) {
             `;
     });
   }
-  
+
   // Add "View All" button at the bottom
   section.innerHTML += `
     <div style="margin-top: 20px; text-align: center;">
@@ -214,7 +213,7 @@ if (transactionForm) {
     fetch("api/actions/add_transaction.php", {
       method: "POST",
       headers: {
-          "X-CSRF-TOKEN": formData.get("csrf_token")
+        "X-CSRF-TOKEN": formData.get("csrf_token"),
       },
       body: formData,
     })
@@ -234,119 +233,119 @@ if (transactionForm) {
   });
 }
 
-/* ============================
-   Edit / Delete Functionality (Dashboard)
-   ============================ */
+// Edit and delete functionality
 
 const editModal = document.getElementById("editTransactionModal");
 const closeEditBtn = document.getElementById("closeEditModal");
 const editForm = document.getElementById("editTransactionForm");
 
-if(editModal && closeEditBtn) {
-    closeEditBtn.addEventListener("click", () => editModal.classList.remove("show"));
-    
-    window.addEventListener("click", (e) => {
-        if (e.target === editModal) editModal.classList.remove("show");
-    });
+if (editModal && closeEditBtn) {
+  closeEditBtn.addEventListener("click", () =>
+    editModal.classList.remove("show"),
+  );
+
+  window.addEventListener("click", (e) => {
+    if (e.target === editModal) editModal.classList.remove("show");
+  });
 }
 
-// Global function to be called from inline onclick
-window.editTransaction = function(id) {
-    // 1. Fetch transaction details AND all wallets
-    Promise.all([
-        fetch(`api/fetch/get_transaction.php?id=${id}`).then(res => res.json()),
-        fetch(`api/fetch/fetch_wallets.php`).then(res => res.json())
-    ])
+// function to use for onclick edit option
+window.editTransaction = function (id) {
+  // Fetching transaction details AND all wallets
+  Promise.all([
+    fetch(`api/fetch/get_transaction.php?id=${id}`).then((res) => res.json()),
+    fetch(`api/fetch/fetch_wallets.php`).then((res) => res.json()),
+  ])
     .then(([txnData, walletData]) => {
-        if(txnData.success && walletData.success) {
-            const t = txnData.transaction;
-            
-            // Populate wallets dropdown
-            const walletSelect = document.getElementById("editWallet");
-            if(walletSelect) {
-                walletSelect.innerHTML = "";
-                walletData.wallets.forEach(w => {
-                    const opt = document.createElement("option");
-                    opt.value = w.id;
-                    opt.textContent = w.name;
-                    walletSelect.appendChild(opt);
-                });
-                walletSelect.value = t.wallet_id;
-            }
+      if (txnData.success && walletData.success) {
+        const t = txnData.transaction;
 
-            const editId = document.getElementById("editId");
-            const editTitle = document.getElementById("editTitle");
-            const editAmount = document.getElementById("editAmount");
-            const editCategory = document.getElementById("editCategory");
-            const txt = document.createElement("textarea");
-            
-            if(editId) editId.value = t.id;
-            
-            if(editTitle) {
-                txt.innerHTML = t.title;
-                editTitle.value = txt.value;
-            }
-            
-            if(editAmount) editAmount.value = t.amount;
-            
-            if(editCategory) {
-                txt.innerHTML = t.category || "Dining";
-                editCategory.value = txt.value;
-            }
-            
-            if(editModal) editModal.classList.add("show");
-        } else {
-            alert("Error fetching data");
+        // Populating wallets dropdown
+        const walletSelect = document.getElementById("editWallet");
+        if (walletSelect) {
+          walletSelect.innerHTML = "";
+          walletData.wallets.forEach((w) => {
+            const opt = document.createElement("option");
+            opt.value = w.id;
+            opt.textContent = w.name;
+            walletSelect.appendChild(opt);
+          });
+          walletSelect.value = t.wallet_id;
         }
+
+        const editId = document.getElementById("editId");
+        const editTitle = document.getElementById("editTitle");
+        const editAmount = document.getElementById("editAmount");
+        const editCategory = document.getElementById("editCategory");
+        const txt = document.createElement("textarea");
+
+        if (editId) editId.value = t.id;
+
+        if (editTitle) {
+          txt.innerHTML = t.title;
+          editTitle.value = txt.value;
+        }
+
+        if (editAmount) editAmount.value = t.amount;
+
+        if (editCategory) {
+          txt.innerHTML = t.category || "Dining";
+          editCategory.value = txt.value;
+        }
+
+        if (editModal) editModal.classList.add("show");
+      } else {
+        alert("Error fetching data");
+      }
     })
-    .catch(err => {
-        console.error(err);
-        alert("Network error");
+    .catch((err) => {
+      console.error(err);
+      alert("Network error");
     });
 };
 
-window.deleteTransaction = function(id) {
-    if(!confirm("Are you sure you want to delete this transaction?")) return;
+window.deleteTransaction = function (id) {
+  if (!confirm("Are you sure you want to delete this transaction?")) return;
 
-    fetch("api/actions/delete_transaction.php", {
-        method: "POST",
-        headers: {
-            "X-CSRF-TOKEN": document.querySelector('input[name="csrf_token"]').value
-        },
-        body: JSON.stringify({id: id})
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-             location.reload(); 
-        } else {
-            alert(data.error || "Failed to delete");
-        }
+  fetch("api/actions/delete_transaction.php", {
+    method: "POST",
+    headers: {
+      "X-CSRF-TOKEN": document.querySelector('input[name="csrf_token"]').value,
+    },
+    body: JSON.stringify({ id: id }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.error || "Failed to delete");
+      }
     });
 };
 
-if(editForm) {
-    editForm.onsubmit = (e) => {
-        e.preventDefault();
-        const formData = new FormData(editForm);
-        // Convert to JSON object
-        const data = Object.fromEntries(formData.entries());
+if (editForm) {
+  editForm.onsubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(editForm);
+    // Converting to JSON object
+    const data = Object.fromEntries(formData.entries());
 
-        fetch("api/actions/update_transaction.php", {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": data.csrf_token
-            },
-            body: JSON.stringify(data)
-        })
-        .then(res => res.json())
-        .then(resData => {
-            if(resData.success) {
-                editModal.classList.remove("show");
-                location.reload();
-            } else {
-                alert(resData.error || "Update failed");
-            }
-        });
-    };
+    fetch("api/actions/update_transaction.php", {
+      method: "POST",
+      headers: {
+        "X-CSRF-TOKEN": data.csrf_token,
+      },
+      body: JSON.stringify(data),
+    })
+      .then((res) => res.json())
+      .then((resData) => {
+        if (resData.success) {
+          editModal.classList.remove("show");
+          location.reload();
+        } else {
+          alert(resData.error || "Update failed");
+        }
+      });
+  };
 }

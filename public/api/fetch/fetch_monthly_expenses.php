@@ -12,10 +12,10 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-// Get selected month (YYYY-MM), fallback to current
+//Getting selected month (YYYY-MM) or fallingback to current
 $month = $_GET['month'] ?? date('Y-m');
 
-// 1️⃣ Fetch available months
+//Fetching available months
 $monthsStmt = $conn->prepare("
     SELECT DISTINCT DATE_FORMAT(transaction_datetime, '%Y-%m') AS month
     FROM transactions
@@ -25,7 +25,7 @@ $monthsStmt = $conn->prepare("
 $monthsStmt->execute([$userId]);
 $months = $monthsStmt->fetchAll(PDO::FETCH_COLUMN);
 
-// 2️⃣ Fetch transactions for selected month
+//Fetching transactions for selected month
 $txnStmt = $conn->prepare("
     SELECT 
         t.id,
@@ -52,7 +52,7 @@ foreach ($transactions as &$txn) {
 }
 unset($txn);
 
-// 3️⃣ Group by DATE (like your dashboard)
+//Grouping by DATE
 $grouped = [];
 foreach ($transactions as $txn) {
     $dateKey = date('Y-m-d', strtotime($txn['transaction_datetime']));

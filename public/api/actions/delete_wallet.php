@@ -18,12 +18,10 @@ if (!$walletId) {
     echo json_encode(['success' => false, 'error' => e('Valid ID required')]);
     exit;
 }
-
-// Security: Ensure wallet belongs to user
 try {
     $conn->beginTransaction();
 
-    // Delete transactions first (Foreign key constraints usually require this, or CASCADE)
+    // Delete transactions related to wallet first
     $stmt1 = $conn->prepare("DELETE FROM transactions WHERE wallet_id = ? AND user_id = ?");
     $stmt1->execute([$walletId, $_SESSION['user_id']]);
 

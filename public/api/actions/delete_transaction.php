@@ -19,11 +19,11 @@ if (!$transactionId) {
     exit;
 }
 
-// Start transaction
+// Starting the transaction
 $conn->beginTransaction();
 
 try {
-    // 1. Fetch transaction details before deletion
+    //Fetching transaction details before deletion
     $fetchStmt = $conn->prepare("SELECT amount, type, wallet_id FROM transactions WHERE id = ? AND user_id = ? FOR UPDATE");
     $fetchStmt->execute([$transactionId, $_SESSION['user_id']]);
     $txn = $fetchStmt->fetch(PDO::FETCH_ASSOC);
@@ -34,11 +34,11 @@ try {
         exit;
     }
 
-    // 2. Delete transaction
+    //Deleting transaction
     $delStmt = $conn->prepare("DELETE FROM transactions WHERE id = ? AND user_id = ?");
     $delStmt->execute([$transactionId, $_SESSION['user_id']]);
 
-    // 3. Adjust Wallet Balance
+    //Correcting the corresponding Wallet Balance after deletion of transaction
     // If it was an expense, add back to balance. If income, subtract.
     $adjustment = ($txn['type'] === 'expense') ? $txn['amount'] : -$txn['amount'];
     

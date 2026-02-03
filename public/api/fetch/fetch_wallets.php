@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 $walletId = $_GET['id'] ?? null;
 
-// 1. Fetch all wallets for the user
+// Fetching all wallets for the user
 try {
     $walletsStmt = $conn->prepare("SELECT id, name, balance, created_at FROM wallets WHERE user_id = ?");
     $walletsStmt->execute([$userId]);
@@ -25,7 +25,7 @@ try {
     }
     unset($w);
 
-    // 2. Determine selected wallet (passed ID or first one)
+    //Determine selected wallet (passed ID or first one)
     $selectedWallet = null;
     
     // Default to strict numeric comparison if ID is provided
@@ -38,14 +38,11 @@ try {
         }
     } 
     
-    // If no specific logic matched or no ID passed, distinct logic:
-    // User requested ID but it wasn't found -> selectedWallet remains null (client handles this)
-    // User didn't request ID -> Default to first
     if (!$selectedWallet && $walletId === null && !empty($wallets)) {
         $selectedWallet = $wallets[0];
     }
 
-    // 3. Fetch transactions for selected wallet (if any)
+    //Fetching transactions for selected wallet (if any)
     $transactions = [];
     if ($selectedWallet) {
         $txnStmt = $conn->prepare("
@@ -58,7 +55,7 @@ try {
         $txnStmt->execute([$userId, $selectedWallet['id']]);
         $transactions = $txnStmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Pre-escape transaction titles
+        //Pre-escaping transaction titles
         foreach ($transactions as &$txn) {
             $txn['title'] = e($txn['title']);
             $txn['type'] = e($txn['type']); // Though enum-like, good practice
